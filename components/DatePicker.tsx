@@ -92,8 +92,10 @@ export default function DatePicker({ value, onChange, placeholder, minDate, drop
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
+      <style>{`@media (max-width: 768px) { .dp-btn { padding: 13px 13px 13px 38px !important; font-size: 15px !important; } }`}</style>
       <button
         type="button"
+        className="dp-btn"
         onClick={() => setOpen(!open)}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",

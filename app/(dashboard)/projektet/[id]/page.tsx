@@ -1325,7 +1325,7 @@ export default function ProjectDetailPage() {
             </div>
             <div>
               <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Data e pagesës</label>
-              <input type="date" value={paymentForm.date} onChange={(e) => setPaymentForm({ ...paymentForm, date: e.target.value })} style={{ ...inputStyle, boxSizing: "border-box" }} />
+              <DatePicker value={paymentForm.date} onChange={(v) => setPaymentForm({ ...paymentForm, date: v })} placeholder="Zgjidh datën..." dropUp />
             </div>
             <div>
               <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Shënim (opsional)</label>
