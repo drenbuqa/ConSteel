@@ -139,7 +139,7 @@ export default function DatePicker({ value, onChange, placeholder, minDate }: {
         position: "absolute",
         top: calPos.above ? calPos.top : calPos.top,
         left: calPos.left,
-        width: Math.max(calPos.width, 252),
+        width: 270,
         zIndex: 9999,
         background: "white",
         border: "1.5px solid #111827",
@@ -285,11 +285,9 @@ export default function DatePicker({ value, onChange, placeholder, minDate }: {
 
   return (
     <div style={{ position: "relative" }}>
-      <style>{`@media (max-width: 768px) { .dp-btn { padding: 13px 13px 13px 38px !important; font-size: 15px !important; } }`}</style>
       <button
         ref={btnRef}
         type="button"
-        className="dp-btn"
         onClick={handleOpen}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
