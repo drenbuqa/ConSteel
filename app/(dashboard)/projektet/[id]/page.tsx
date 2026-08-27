@@ -421,12 +421,12 @@ function FotoTab({ projectId, files, onAdd, onRemove }: { projectId: string; fil
       {error && <div style={{ marginBottom: "14px", padding: "10px 14px", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: "8px", fontSize: "13px", color: "#DC2626" }}>{error}</div>}
 
       {images.length === 0 ? (
-        <div className="card" style={{ padding: "64px 24px", textAlign: "center" }}>
-          <div style={{ width: "56px", height: "56px", background: "#F3F4F6", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-            <Image size={24} color="#9CA3AF" />
+        <div className="card" style={{ padding: "56px 24px", textAlign: "center" }}>
+          <div style={{ width: "52px", height: "52px", background: "#F3F4F6", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+            <Image size={22} color="#9CA3AF" />
           </div>
-          <div style={{ fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>Nuk ka foto ende</div>
-          <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "280px", margin: "0 auto", lineHeight: 1.6 }}>Ngarko foto nga kantieri — progres punimesh, dokumentim, etj.</div>
+          <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka foto ende</div>
+          <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "280px", margin: "0 auto 20px", lineHeight: 1.6 }}>Ngarko foto nga kantieri — progres punimesh, dokumentim, etj.</div>
         </div>
       ) : (
         <div className="foto-grid">
@@ -559,12 +559,12 @@ function DokumenteTab({ projectId, files: allFiles, onAdd, onRemove, onRename }:
       {error && <div style={{ marginBottom: "14px", padding: "10px 14px", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: "8px", fontSize: "13px", color: "#DC2626" }}>{error}</div>}
 
       {files.length === 0 ? (
-        <div className="card" style={{ padding: "64px 24px", textAlign: "center" }}>
-          <div style={{ width: "56px", height: "56px", background: "#F3F4F6", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-            <FileText size={24} color="#9CA3AF" />
+        <div className="card" style={{ padding: "56px 24px", textAlign: "center" }}>
+          <div style={{ width: "52px", height: "52px", background: "#F3F4F6", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+            <FileText size={22} color="#9CA3AF" />
           </div>
-          <div style={{ fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>Nuk ka dokumente ende</div>
-          <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "300px", margin: "0 auto", lineHeight: 1.6 }}>Ngarko PDF, Word, Excel, DWG dhe skedarë të tjerë të projektit.</div>
+          <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka dokumente ende</div>
+          <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "300px", margin: "0 auto 20px", lineHeight: 1.6 }}>Ngarko PDF, Word, Excel, DWG dhe skedarë të tjerë të projektit.</div>
         </div>
       ) : (
         <div className="card" style={{ overflow: "hidden" }}>
@@ -642,7 +642,7 @@ export default function ProjectDetailPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [tab, setTab] = useState<"permbledhje" | "shpenzimet" | "raportet" | "foto" | "dokumente" | "pagesat">("permbledhje");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentForm, setPaymentForm] = useState({ amount: "", date: "", note: "" });
+  const [paymentForm, setPaymentForm] = useState({ amount: "", date: new Date().toISOString().split("T")[0], note: "" });
   const [paymentSaving, setPaymentSaving] = useState(false);
   const [allFiles, setAllFiles] = useState<ProjectFile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -750,7 +750,7 @@ export default function ProjectDetailPage() {
     });
     setPaymentSaving(false);
     setShowPaymentModal(false);
-    setPaymentForm({ amount: "", date: "", note: "" });
+    setPaymentForm({ amount: "", date: new Date().toISOString().split("T")[0], note: "" });
     fetchProject();
     toast({ type: "success", message: "Pagesa u regjistrua." });
   };
@@ -1028,10 +1028,14 @@ export default function ProjectDetailPage() {
               {project.notes ? (
                 <p style={{ fontSize: "13px", color: "#374151", lineHeight: 1.7, margin: 0, whiteSpace: "pre-wrap" }}>{project.notes}</p>
               ) : (
-                <div style={{ textAlign: "center", padding: "24px 0" }}>
-                  <p style={{ fontSize: "13px", color: "#D1D5DB", margin: "0 0 10px", fontStyle: "italic" }}>Nuk ka shënime.</p>
-                  <button onClick={() => setEditOpen(true)} style={{ fontSize: "12px", color: "#9CA3AF", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", fontFamily: "Inter, sans-serif" }}>
-                    Shto shënime
+                <div style={{ textAlign: "center", padding: "28px 16px" }}>
+                  <div style={{ width: "44px", height: "44px", background: "#F3F4F6", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
+                    <FileText size={18} color="#9CA3AF" />
+                  </div>
+                  <div style={{ fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "4px" }}>Nuk ka shënime</div>
+                  <div style={{ fontSize: "12px", color: "#9CA3AF", marginBottom: "14px" }}>Shtoni shënime për detaje shtesë të projektit.</div>
+                  <button onClick={() => setEditOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "7px 16px", background: "#111827", color: "white", border: "none", borderRadius: "8px", fontSize: "12px", fontWeight: "600", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
+                    <Plus size={12} /> Shto shënime
                   </button>
                 </div>
               )}
@@ -1294,7 +1298,7 @@ export default function ProjectDetailPage() {
 
       {/* Payment modal */}
       {showPaymentModal && (
-        <Modal onClose={() => { setShowPaymentModal(false); setPaymentForm({ amount: "", date: "", note: "" }); }} title="Regjistro pagesë">
+        <Modal onClose={() => { setShowPaymentModal(false); setPaymentForm({ amount: "", date: new Date().toISOString().split("T")[0], note: "" }); }} title="Regjistro pagesë">
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             <div>
               <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Shuma (€) *</label>
@@ -1318,7 +1322,7 @@ export default function ProjectDetailPage() {
               <input value={paymentForm.note} onChange={(e) => setPaymentForm({ ...paymentForm, note: e.target.value })} placeholder="p.sh. Pagesa e parë, transfertë bankare" style={{ ...inputStyle, boxSizing: "border-box" }} />
             </div>
             <div style={{ display: "flex", gap: "10px", paddingTop: "4px" }}>
-              <button onClick={() => { setShowPaymentModal(false); setPaymentForm({ amount: "", date: "", note: "" }); }} className="btn-secondary" style={{ flex: 1 }}>Anulo</button>
+              <button onClick={() => { setShowPaymentModal(false); setPaymentForm({ amount: "", date: new Date().toISOString().split("T")[0], note: "" }); }} className="btn-secondary" style={{ flex: 1 }}>Anulo</button>
               <button onClick={handleAddPayment} disabled={paymentSaving || !paymentForm.amount} className="btn-primary" style={{ flex: 2, justifyContent: "center", opacity: !paymentForm.amount ? 0.5 : 1 }}>
                 {paymentSaving ? "Duke ruajtur..." : <><Check size={14} /> Regjistro pagesën</>}
               </button>

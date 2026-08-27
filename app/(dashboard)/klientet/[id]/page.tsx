@@ -531,12 +531,12 @@ export default function ClientDetailPage() {
         </div>
 
         {client.projects.length === 0 ? (
-          <div style={{ padding: "60px 24px", textAlign: "center" }}>
+          <div style={{ padding: "56px 24px", textAlign: "center" }}>
             <div style={{ width: "52px", height: "52px", background: "#F3F4F6", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
               <FolderKanban size={22} color="#9CA3AF" />
             </div>
-            <div style={{ fontSize: "15px", fontWeight: "700", color: "#374151", marginBottom: "6px" }}>Nuk ka projekte</div>
-            <div style={{ fontSize: "13px", color: "#9CA3AF", marginBottom: "20px" }}>Ky klient nuk ka projekte të regjistruara ende.</div>
+            <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka projekte</div>
+            <div style={{ fontSize: "13px", color: "#9CA3AF", marginBottom: "20px", lineHeight: 1.6 }}>Ky klient nuk ka projekte të regjistruara ende.</div>
             <Link href={`/projektet/i-ri?clientId=${id}`} className="btn-primary" style={{ display: "inline-flex" }}>
               <Plus size={14} /> Krijo projekt të ri
             </Link>
