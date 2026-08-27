@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F2F4F8;
+  --card: #FFFFFF;
+  --border: #EAECF0;
+  --primary: #111827;
+  --muted: #9CA3AF;
+  --secondary: #374151;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #F2F4F8;
+  color: #111827;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  border: 1px solid #EAECF0;
+}
+
+.btn-primary {
+  background: #111827;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary:hover {
+  background: #1f2937;
+}
+
+.btn-secondary {
+  background: white;
+  color: #374151;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid #EAECF0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-secondary:hover {
+  background: #F9FAFB;
+}
+
+.input-field {
+  background: #F9FAFB;
+  border: 1px solid #EAECF0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  color: #111827;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+
+.input-field:focus {
+  border-color: #111827;
+  background: white;
+}
+
+.input-field::placeholder {
+  color: #9CA3AF;
+}
+
+.badge-active {
+  background: #F0FDF4;
+  color: #16A34A;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.badge-pending {
+  background: #FFFBEB;
+  color: #D97706;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.badge-done {
+  background: #F3F4F6;
+  color: #6B7280;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* ── Hover utilities ──────────────────────────────────────── */
+
+/* Stat cards: lift on hover */
+.stat-card {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.stat-card:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
+}
+
+/* Table rows */
+.table-row {
+  transition: background 0.12s ease;
+  cursor: pointer;
+}
+.table-row:hover {
+  background: #F9FAFB !important;
+}
+.table-row:hover td {
+  background: #F9FAFB;
+}
+
+/* Danger button (delete, etc.) */
+.btn-danger {
+  background: white;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+}
+.btn-danger:hover {
+  background: #FEF2F2;
+  border-color: #FCA5A5;
+}
+
+/* Form inputs on focus */
+.input-field:hover {
+  border-color: #D1D5DB;
+}
+
+/* Select dropdown */
+select.input-field {
+  cursor: pointer;
+}
+
+/* Logout button already handled inline — ensure base transition */
+button {
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+/* Breadcrumb links — underline on hover */
+.breadcrumb-link {
+  text-decoration: none;
+  transition: color 0.15s, text-decoration-color 0.15s;
+  text-underline-offset: 3px;
+}
+.breadcrumb-link:hover {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+}
+
+/* Hide number input spinners */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Page entrance animation */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageEnter 0.22s ease both;
+}
+
+
+/* ── Mobile responsive utilities ─────────────────────────── */
+@media (max-width: 640px) {
+  /* Touch targets */
+  .btn-primary, .btn-secondary, .btn-danger {
+    min-height: 44px;
+    padding: 10px 18px;
+  }
+}
+
+/* ── Skeleton shimmer ─────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #F3F4F6 25%, #E9EAEC 50%, #F3F4F6 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}

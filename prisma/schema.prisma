@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id        String    @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  notes     String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id                         String    @id @default(cuid())
+  name                       String
+  location                   String?
+  clientId                   String
+  client                     Client    @relation(fields: [clientId], references: [id])
+  startDate                  DateTime?
+  endDate                    DateTime?
+  status                     String    @default("active")
+  workers                    Int       @default(0)
+  totalPrice                 Float     @default(0)
+  shpenzimeOperative         Float     @default(0)
+  shpenzimeMateriali         Float     @default(0)
+  shpenzimeUshqimBonuse      Float     @default(0)
+  shpenzimeTransportSherbimi Float     @default(0)
+  puneShteseTotal            Float     @default(0)
+  totaliShpenzimeve          Float     @default(0)
+  totaliBarazimit            Float     @default(0)
+  notes                      String?
+  reports                    Report[]
+  files                      ProjectFile[]
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model ProjectFile {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  url       String
+  name      String
+  size      Int?
+  type      String   @default("image")
+  ext       String?
+  data      String?
+  createdAt DateTime @default(now())
+}
