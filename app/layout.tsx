@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ConSteel Pro",
+  title: "ConSteel",
   description: "Construction Company Management System",
 };
 

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/Toast";
 import { SkeletonProjectDetail, useDelayedLoading } from "@/components/Skeleton";
 import Link from "next/link";
+import BottomSheet from "@/components/BottomSheet";
 import {
   ArrowLeft, Edit2, X, Plus, Trash2,
   MapPin, Users, Euro, Building2,
@@ -339,26 +340,20 @@ function EditDrawer({ form, clients, setClients, saving, onClose, onSave, setF, 
 
 function DeleteConfirmModal({ label, onConfirm, onCancel }: { label: string; onConfirm: () => void; onCancel: () => void }) {
   return (
-    <div
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", backdropFilter: "blur(2px)" }}
-      onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
-    >
-      <div style={{ background: "white", borderRadius: "14px", width: "100%", maxWidth: "360px", boxShadow: "0 24px 64px rgba(0,0,0,0.18)", overflow: "hidden" }}>
-        <div style={{ padding: "24px" }}>
-          <div style={{ width: "44px", height: "44px", background: "#FEF2F2", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px" }}>
-            <Trash2 size={20} color="#DC2626" />
-          </div>
-          <div style={{ fontSize: "16px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>{label}</div>
-          <div style={{ fontSize: "13px", color: "#6B7280", lineHeight: 1.6 }}>Ky veprim nuk mund të kthehet mbrapsht.</div>
+    <BottomSheet title={label} onClose={onCancel} maxWidth="380px">
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", background: "#FEF2F2", borderRadius: "10px" }}>
+          <Trash2 size={18} color="#DC2626" />
+          <span style={{ fontSize: "13px", color: "#991B1B", lineHeight: 1.5 }}>Ky veprim nuk mund të kthehet mbrapsht.</span>
         </div>
-        <div style={{ padding: "14px 24px", borderTop: "1px solid #F3F4F6", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-          <button onClick={onCancel} style={{ padding: "8px 18px", background: "white", border: "1px solid #E5E7EB", borderRadius: "8px", fontSize: "13px", fontWeight: "500", color: "#374151", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>Anulo</button>
-          <button onClick={onConfirm} style={{ padding: "8px 18px", background: "#DC2626", border: "none", borderRadius: "8px", fontSize: "13px", fontWeight: "600", color: "white", cursor: "pointer", fontFamily: "Inter, sans-serif", display: "flex", alignItems: "center", gap: "6px" }}>
-            <Trash2 size={13} /> Fshi
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button onClick={onCancel} style={{ flex: 1, padding: "11px", background: "#F3F4F6", border: "none", borderRadius: "10px", fontSize: "14px", fontWeight: "600", color: "#374151", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>Anulo</button>
+          <button onClick={onConfirm} style={{ flex: 1, padding: "11px", background: "#DC2626", border: "none", borderRadius: "10px", fontSize: "14px", fontWeight: "700", color: "white", cursor: "pointer", fontFamily: "Inter, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+            <Trash2 size={14} /> Fshi
           </button>
         </div>
       </div>
-    </div>
+    </BottomSheet>
   );
 }
 
@@ -632,22 +627,7 @@ function DokumenteTab({ projectId, files: allFiles, onAdd, onRemove, onRename }:
 }
 
 function Modal({ onClose, title, children }: { onClose: () => void; title: string; children: React.ReactNode }) {
-  return (
-    <div
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "16px" }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className="card" style={{ width: "100%", maxWidth: "480px", padding: "0" }}>
-        <div style={{ padding: "18px 24px", borderBottom: "1px solid #EAECF0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: "15px", fontWeight: "700", color: "#111827" }}>{title}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#9CA3AF", padding: "4px", display: "flex" }}>
-            <X size={18} />
-          </button>
-        </div>
-        <div style={{ padding: "24px" }}>{children}</div>
-      </div>
-    </div>
-  );
+  return <BottomSheet title={title} onClose={onClose}>{children}</BottomSheet>;
 }
 
 export default function ProjectDetailPage() {
@@ -871,16 +851,17 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: "0", marginBottom: "20px", borderBottom: "2px solid #EAECF0" }}>
+      <div style={{ display: "flex", gap: "0", marginBottom: "20px", borderBottom: "2px solid #EAECF0", overflowX: "auto", WebkitOverflowScrolling: "touch" as never, scrollbarWidth: "none" as never }}>
         {tabs.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)} style={{
-            padding: "10px 20px", fontSize: "13px",
+            padding: "10px 16px", fontSize: "13px",
             fontWeight: tab === t.key ? "600" : "500",
             color: tab === t.key ? "#111827" : "#6B7280",
             background: "transparent", border: "none",
             borderBottom: tab === t.key ? "2px solid #111827" : "2px solid transparent",
             marginBottom: "-2px", cursor: "pointer", transition: "color 0.15s",
             display: "flex", alignItems: "center", gap: "6px",
+            whiteSpace: "nowrap", flexShrink: 0,
           }}>
             {t.icon}{t.label}
           </button>

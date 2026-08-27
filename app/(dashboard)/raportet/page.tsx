@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FileText, Search, X, Calendar, User, FolderOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { FileText, Calendar, User, FolderOpen, ChevronDown, ChevronUp } from "lucide-react";
+import SearchBar from "@/components/SearchBar";
 import { useDelayedLoading } from "@/components/Skeleton";
 import PageTransition from "@/components/PageTransition";
 
@@ -139,7 +140,7 @@ export default function RaportetPage() {
   return (
     <PageTransition>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "20px", gap: "16px", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "16px" }}>
         <div>
           <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }}>Raportet</h1>
           <p style={{ fontSize: "13px", color: "#9CA3AF", margin: "3px 0 0" }}>
@@ -147,32 +148,19 @@ export default function RaportetPage() {
           </p>
         </div>
         {!loading && reports.length > 0 && (
-          <div style={{ fontSize: "13px", color: "#6B7280", fontWeight: "500", paddingTop: "4px", flexShrink: 0 }}>
+          <div style={{ fontSize: "13px", color: "#6B7280", fontWeight: "500", flexShrink: 0 }}>
             {reports.length} {reports.length === 1 ? "raport" : "raporte"}
-            {search ? ` për "${search}"` : ""}
           </div>
         )}
       </div>
 
-      {/* Search bar — full width */}
-      <div style={{ position: "relative", marginBottom: "24px" }}>
-        <Search size={15} color="#9CA3AF" style={{ position: "absolute", left: "13px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
-        <input
-          type="text"
-          placeholder="Kërko raporte, projekte, klientë..."
+      {/* Search */}
+      <div style={{ marginBottom: "20px" }}>
+        <SearchBar
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: "100%", padding: "10px 36px 10px 38px", border: "1px solid #E5E7EB", borderRadius: "10px", fontSize: "13.5px", fontFamily: "Inter, sans-serif", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s, box-shadow 0.15s" } as React.CSSProperties}
-          onFocus={(e) => { e.target.style.borderColor = "#111827"; e.target.style.boxShadow = "0 0 0 3px rgba(17,24,39,0.06)"; }}
-          onBlur={(e) => { e.target.style.borderColor = "#E5E7EB"; e.target.style.boxShadow = "none"; }}
+          onChange={setSearch}
+          placeholder="Kërko raporte, projekte, klientë..."
         />
-        {search && (
-          <button onClick={() => setSearch("")}
-            style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: "2px", display: "flex" }}
-          >
-            <X size={14} color="#9CA3AF" />
-          </button>
-        )}
       </div>
 
       {/* Skeleton */}

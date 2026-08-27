@@ -91,9 +91,11 @@ export default function BarazimiPage() {
     <style>{`
       .bar-sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
       @media (max-width: 768px) {
-        .bar-sum-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .bar-sum-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1; }
+        .bar-sum-grid { grid-template-columns: 1fr; gap: 10px; }
+        .bar-desktop-table { display: none !important; }
+        .bar-mobile-cards  { display: flex !important; }
       }
+      .bar-mobile-cards { display: none; flex-direction: column; gap: 10px; }
     `}</style>
     <PageTransition>
     {showSkeleton ? (
@@ -107,11 +109,13 @@ export default function BarazimiPage() {
       </div>
     ) : (<>
       {/* Header */}
-      <div style={{ marginBottom: "6px" }}>
-        <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }}>Pagesat</h1>
-        <p style={{ fontSize: "14px", color: "#9CA3AF", margin: "4px 0 0" }}>
-          Gjurmoni sa para keni mbledhur nga çdo projekt krahasuar me vlerën e kontratës.
-        </p>
+      <div className="page-hdr" style={{ marginBottom: "6px" }}>
+        <div>
+          <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }}>Pagesat</h1>
+          <p style={{ fontSize: "13px", color: "#9CA3AF", margin: "4px 0 0" }}>
+            Gjurmoni sa para keni mbledhur nga çdo projekt krahasuar me vlerën e kontratës.
+          </p>
+        </div>
       </div>
 
       {/* Explanation banner */}
@@ -160,8 +164,67 @@ export default function BarazimiPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="card" style={{ overflow: "hidden" }}>
+      {/* Mobile cards */}
+      <div className="bar-mobile-cards">
+        {projects.map((p) => {
+          const remaining = Math.max(p.totalPrice - p.totaliBarazimit, 0);
+          const pct = p.totalPrice > 0 ? (p.totaliBarazimit / p.totalPrice) * 100 : 0;
+          const isEditing = editingId === p.id;
+          return (
+            <div key={p.id} className="card" style={{ padding: "14px 16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
+                <div>
+                  <Link href={`/projektet/${p.id}`} style={{ fontSize: "15px", fontWeight: "700", color: "#111827", textDecoration: "none" }}>{p.name}</Link>
+                  <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>
+                    <Link href={`/klientet/${p.client.id}`} style={{ color: "#9CA3AF", textDecoration: "none" }}>{p.client.name}</Link>
+                  </div>
+                </div>
+                <StatusBadge status={p.status} />
+              </div>
+              <div style={{ marginBottom: "10px" }}>
+                <ProgressBar pct={pct} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F3F4F6", paddingTop: "10px" }}>
+                <div>
+                  <div style={{ fontSize: "11px", color: "#9CA3AF", marginBottom: "2px" }}>Mbledhur</div>
+                  {isEditing ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <input
+                        type="number" value={editValue} onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") saveEdit(p.id); if (e.key === "Escape") cancelEdit(); }}
+                        autoFocus
+                        style={{ width: "90px", padding: "5px 8px", border: "1.5px solid #111827", borderRadius: "7px", fontSize: "13px", fontFamily: "Inter, sans-serif", outline: "none" }}
+                      />
+                      <button onClick={() => saveEdit(p.id)} disabled={saving} style={{ width: "28px", height: "28px", background: "#111827", border: "none", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                        <Check size={13} color="white" />
+                      </button>
+                      <button onClick={cancelEdit} style={{ width: "28px", height: "28px", background: "#F3F4F6", border: "none", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                        <X size={13} color="#6B7280" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ fontSize: "14px", fontWeight: "700", color: "#16A34A" }}>{fmt(p.totaliBarazimit)}</span>
+                      <button onClick={() => startEdit(p)} style={{ width: "28px", height: "28px", background: "#F3F4F6", border: "none", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                        <Edit2 size={13} color="#374151" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: "11px", color: "#9CA3AF", marginBottom: "2px" }}>Mbetur</div>
+                  <div style={{ fontSize: "14px", fontWeight: "700", color: remaining > 0 ? "#D97706" : "#16A34A" }}>
+                    {remaining > 0 ? fmt(remaining) : "Paguar ✓"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Table (desktop only) */}
+      <div className="bar-desktop-table card" style={{ overflow: "hidden" }}>
         <div style={{ padding: "18px 24px", borderBottom: "1px solid #EAECF0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}>Gjendja e pagesave sipas projektit</div>

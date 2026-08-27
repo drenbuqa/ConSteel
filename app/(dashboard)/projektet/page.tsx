@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Plus, Search, MapPin, Users, FolderOpen, CheckCircle2, Clock, Archive, ChevronDown, X } from "lucide-react";
 import { SkeletonTable, useDelayedLoading } from "@/components/Skeleton";
+import SearchBar from "@/components/SearchBar";
 import PageTransition from "@/components/PageTransition";
 
 interface Project {
@@ -114,11 +115,11 @@ function StatusDropdown({ value, onChange }: { value: string; onChange: (v: stri
         onClick={() => setOpen((o) => !o)}
         style={{
           display: "flex", alignItems: "center", gap: "8px",
-          padding: "0 14px", height: "46px",
+          padding: "0 12px", height: "44px",
           border: open ? "1.5px solid #2563EB" : "1.5px solid #E5E7EB",
           borderRadius: "12px", background: "white",
           fontSize: "14px", fontWeight: "500", color: selected.value ? selected.color : "#374151",
-          cursor: "pointer", whiteSpace: "nowrap", minWidth: "180px",
+          cursor: "pointer", whiteSpace: "nowrap",
           boxShadow: open ? "0 0 0 3px rgba(37,99,235,0.08)" : "0 1px 2px rgba(0,0,0,0.04)",
           transition: "border-color 0.15s, box-shadow 0.15s",
           outline: "none",
@@ -228,24 +229,26 @@ export default function ProjektetPage() {
         .proj-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         @media (max-width: 1024px) { .proj-stat-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px)  {
-          .proj-stat-grid { grid-template-columns: repeat(2, 1fr); }
-          .proj-stat-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1; }
+          .proj-stat-grid { display: none !important; }
+          .proj-desktop-table { display: none !important; }
+          .proj-mobile-cards  { display: flex !important; }
         }
+        .proj-mobile-cards { display: none; flex-direction: column; }
       `}</style>
 
       <PageTransition>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
+      {/* Header — always a single row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "20px" }}>
         <div>
-          <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#111827", margin: 0 }}>Projektet</h1>
+          <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }}>Projektet</h1>
           <p style={{ fontSize: "13px", color: "#9CA3AF", margin: "2px 0 0" }}>Menaxhoni të gjitha projektet e kompanisë</p>
         </div>
-        <Link href="/projektet/i-ri" className="btn-primary">
+        <Link href="/projektet/i-ri" className="btn-primary" style={{ flexShrink: 0, whiteSpace: "nowrap", minHeight: "40px" }}>
           <Plus size={15} /> Projekt i ri
         </Link>
       </div>
 
-      {/* Stat row */}
+      {/* Stat row — hidden on mobile via CSS */}
       <div className="proj-stat-grid" style={{ marginBottom: "20px" }}>
         {statCards.map((s) => {
           const Icon = s.icon;
@@ -266,54 +269,59 @@ export default function ProjektetPage() {
         })}
       </div>
 
-      {/* Search + filter */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "16px", alignItems: "center" }}>
-        {/* Search */}
-        <div style={{ position: "relative", flex: 1 }}>
-          <Search size={17} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#9CA3AF", pointerEvents: "none" }} />
-          <input
-            type="text"
-            placeholder="Kërko projekt, klient ose lokacion..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: "100%", height: "46px", paddingLeft: "46px", paddingRight: search ? "40px" : "16px",
-              border: "1.5px solid #E5E7EB", borderRadius: "12px",
-              fontSize: "14px", color: "#111827", background: "white", outline: "none",
-              boxSizing: "border-box", transition: "border-color 0.15s, box-shadow 0.15s",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = "#2563EB";
-              e.currentTarget.style.boxShadow = "0 0 0 3px rgba(37,99,235,0.08)";
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = "#E5E7EB";
-              e.currentTarget.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)";
-            }}
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              style={{
-                position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
-                background: "#E5E7EB", border: "none", borderRadius: "50%", cursor: "pointer",
-                width: "20px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center",
-                padding: 0, color: "#6B7280",
-              }}
-            >
-              <X size={12} />
-            </button>
-          )}
-        </div>
-
-        {/* Custom status dropdown */}
-        <StatusDropdown value={statusFilter} onChange={setStatusFilter} />
+      {/* Search + filter — always a single row */}
+      <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "16px" }}>
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Kërko projekt, klient ose lokacion..."
+        />
+        <div style={{ flexShrink: 0 }}><StatusDropdown value={statusFilter} onChange={setStatusFilter} /></div>
       </div>
 
-      {/* Table */}
-      <div className="card" style={{ overflow: "hidden" }}>
+      {/* Mobile cards */}
+      <div className="proj-mobile-cards" style={{ gap: "10px", marginBottom: "8px" }}>
+        {projects.map((p) => {
+          const remaining = Math.max(p.totalPrice - p.totaliShpenzimeve, 0);
+          return (
+            <Link key={p.id} href={`/projektet/${p.id}`} style={{ textDecoration: "none" }}>
+              <div className="card" style={{ padding: "14px 16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                  <div style={{ flex: 1, minWidth: 0, paddingRight: "8px" }}>
+                    <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "2px" }}>{p.name}</div>
+                    {p.location && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "12px", color: "#9CA3AF" }}>
+                        <MapPin size={11} /> {p.location}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px", flexShrink: 0 }}>
+                    <StatusBadge status={p.status} />
+                    <DeadlineBadge endDate={p.endDate} status={p.status} />
+                  </div>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F3F4F6", paddingTop: "10px" }}>
+                  <div style={{ fontSize: "12px", color: "#6B7280" }}>{p.client.name}</div>
+                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>{fmt(p.totalPrice)}</div>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+        {projects.length === 0 && !showSkeleton && (
+          <div style={{ textAlign: "center", padding: "48px 16px" }}>
+            <div style={{ fontSize: "15px", fontWeight: "600", color: "#111827", marginBottom: "6px" }}>
+              {search || statusFilter ? "Nuk u gjet asnjë projekt" : "Nuk ka projekte ende"}
+            </div>
+            <Link href="/projektet/i-ri" className="btn-primary" style={{ display: "inline-flex", marginTop: "16px" }}>
+              <Plus size={14} /> Krijo projekt
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Table (desktop only) */}
+      <div className="proj-desktop-table card" style={{ overflow: "hidden" }}>
         {showSkeleton ? (
           <SkeletonTable rows={5} />
         ) : (

@@ -42,13 +42,17 @@ export default async function ShpenzimetPage() {
       .sht-stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
       @media (max-width: 1024px) { .sht-stat-grid { grid-template-columns: repeat(3, 1fr); } }
       @media (max-width: 768px)  {
-        .sht-stat-grid { grid-template-columns: repeat(2, 1fr); }
+        .sht-stat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .sht-stat-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1; }
+        .sht-card-icon { display: none !important; }
+        .sht-card-value { font-size: 16px !important; }
+        .sht-card-label { font-size: 10px !important; }
+        .sht-card-inner { padding: 12px 14px !important; }
       }
     `}</style>
     <PageTransition>
       {/* ── Header ── */}
-      <div style={{ marginBottom: "26px" }}>
+      <div style={{ marginBottom: "20px" }}>
         <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }}>Shpenzimet</h1>
         <p style={{ fontSize: "13px", color: "#9CA3AF", margin: "3px 0 0" }}>
           Pasqyrë e shpenzimeve në të gjitha projektet
@@ -61,17 +65,17 @@ export default async function ShpenzimetPage() {
           const pct = grandTotal > 0 ? (cat.value / grandTotal) * 100 : 0;
           const { Icon } = cat;
           return (
-            <div key={cat.key} className="card" style={{ padding: "16px 18px", position: "relative", overflow: "hidden" }}>
+            <div key={cat.key} className="card sht-card-inner" style={{ padding: "16px 18px", position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "#111827", borderRadius: "10px 10px 0 0" }} />
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
-                <span style={{ fontSize: "11px", fontWeight: "600", color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.04em", lineHeight: 1.3 }}>{cat.label}</span>
-                <div style={{ width: "28px", height: "28px", borderRadius: "7px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span className="sht-card-label" style={{ fontSize: "11px", fontWeight: "600", color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.04em", lineHeight: 1.3 }}>{cat.label}</span>
+                <div className="sht-card-icon" style={{ width: "28px", height: "28px", borderRadius: "7px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Icon size={14} color="#6B7280" strokeWidth={2} />
                 </div>
               </div>
 
-              <div style={{ fontSize: "18px", fontWeight: "800", color: "#111827", letterSpacing: "-0.3px" }}>{fmt(cat.value)}</div>
+              <div className="sht-card-value" style={{ fontSize: "18px", fontWeight: "800", color: "#111827", letterSpacing: "-0.3px" }}>{fmt(cat.value)}</div>
 
               <div style={{ marginTop: "10px" }}>
                 <div style={{ height: "4px", background: "#F3F4F6", borderRadius: "2px", overflow: "hidden" }}>

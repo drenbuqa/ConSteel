@@ -82,23 +82,16 @@ export default async function DashboardPage() {
         .dash-main-grid { grid-template-columns: 1fr; }
       }
       @media (max-width: 768px) {
-        .dash-stat-grid { grid-template-columns: repeat(2, 1fr); }
+        .dash-stat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .dash-stat-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1; }
         .dash-act-grid  { grid-template-columns: 1fr; }
+        .kpi-icon { display: none !important; }
+        .kpi-label-row { margin-bottom: 4px !important; }
       }
     `}</style>
     <PageTransition>
       {/* ── Topbar ── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "28px",
-          flexWrap: "wrap",
-          gap: "12px",
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "20px" }}>
         <div>
           <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#111827", margin: 0 }}>
             Kryefaqja
@@ -107,99 +100,95 @@ export default async function DashboardPage() {
             Përmbledhje e performancës së kompanisë
           </p>
         </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {/* + Projekt i ri */}
-          <Link href="/projektet/i-ri" className="btn-primary">
-            <Plus size={15} />
-            Projekt i ri
-          </Link>
-        </div>
+        <Link href="/projektet/i-ri" className="btn-primary" style={{ flexShrink: 0, whiteSpace: "nowrap" }}>
+          <Plus size={15} />
+          Projekt i ri
+        </Link>
       </div>
 
       {/* ── Stat Cards ── */}
       <div className="dash-stat-grid" style={{ marginBottom: "24px" }}>
         {/* Card 1: Projekte aktive */}
-        <div className="card stat-card" style={{ padding: "20px" }}>
+        <div className="card stat-card kpi-card-inner" style={{ padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                <div style={{ width: "40px", height: "40px", background: "#F3F4F6", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <FolderKanban size={20} color="#6B7280" />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="kpi-label-row" style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                <div className="kpi-icon" style={{ width: "36px", height: "36px", background: "#F3F4F6", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <FolderKanban size={18} color="#6B7280" />
                 </div>
-                <span style={{ fontSize: "13px", color: "#9CA3AF", fontWeight: "500" }}>Projekte aktive</span>
+                <span style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: "500", lineHeight: 1.3 }}>Projekte aktive</span>
               </div>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: "#111827", lineHeight: 1 }}>
+              <div className="kpi-value" style={{ fontSize: "24px", fontWeight: "700", color: "#111827", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {activeProjects.length}
               </div>
-              <div style={{ fontSize: "12px", color: activeProjects.length > 0 ? "#16A34A" : "#9CA3AF", marginTop: "6px" }}>
+              <div style={{ fontSize: "11px", color: activeProjects.length > 0 ? "#16A34A" : "#9CA3AF", marginTop: "6px" }}>
                 {activeProjects.length} projekte në punë
               </div>
             </div>
-            <Sparkline positive={true} />
+            <div className="kpi-sparkline" style={{ flexShrink: 0 }}><Sparkline positive={true} /></div>
           </div>
         </div>
 
         {/* Card 2: Vlera totale */}
-        <div className="card stat-card" style={{ padding: "20px" }}>
+        <div className="card stat-card kpi-card-inner" style={{ padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                <div style={{ width: "40px", height: "40px", background: "#F3F4F6", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Euro size={20} color="#6B7280" />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="kpi-label-row" style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                <div className="kpi-icon" style={{ width: "36px", height: "36px", background: "#F3F4F6", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Euro size={18} color="#6B7280" />
                 </div>
-                <span style={{ fontSize: "13px", color: "#9CA3AF", fontWeight: "500" }}>Vlera totale</span>
+                <span style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: "500", lineHeight: 1.3 }}>Vlera totale</span>
               </div>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: "#111827", lineHeight: 1 }}>
+              <div className="kpi-value" style={{ fontSize: "24px", fontWeight: "700", color: "#111827", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {formatEuro(totalValue)}
               </div>
-              <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "6px" }}>
+              <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "6px" }}>
                 {projects.length} projekte gjithsej
               </div>
             </div>
-            <Sparkline positive={true} />
+            <div className="kpi-sparkline" style={{ flexShrink: 0 }}><Sparkline positive={true} /></div>
           </div>
         </div>
 
         {/* Card 3: Shpenzime totale */}
-        <div className="card stat-card" style={{ padding: "20px" }}>
+        <div className="card stat-card kpi-card-inner" style={{ padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                <div style={{ width: "40px", height: "40px", background: "#F3F4F6", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Wallet size={20} color="#6B7280" />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="kpi-label-row" style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                <div className="kpi-icon" style={{ width: "36px", height: "36px", background: "#F3F4F6", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Wallet size={18} color="#6B7280" />
                 </div>
-                <span style={{ fontSize: "13px", color: "#9CA3AF", fontWeight: "500" }}>Shpenzime totale</span>
+                <span style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: "500", lineHeight: 1.3 }}>Shpenzime totale</span>
               </div>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: "#111827", lineHeight: 1 }}>
+              <div className="kpi-value" style={{ fontSize: "24px", fontWeight: "700", color: "#111827", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {formatEuro(totalExpenses)}
               </div>
-              <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "6px" }}>
+              <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "6px" }}>
                 {expPct}% e vlerës totale
               </div>
             </div>
-            <Sparkline positive={false} />
+            <div className="kpi-sparkline" style={{ flexShrink: 0 }}><Sparkline positive={false} /></div>
           </div>
         </div>
 
         {/* Card 4: Bilanci / Fitimi */}
-        <div className="card stat-card" style={{ padding: "20px" }}>
+        <div className="card stat-card kpi-card-inner" style={{ padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                <div style={{ width: "40px", height: "40px", background: totalProfit >= 0 ? "#F0FDF4" : "#FEF2F2", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <TrendingUp size={20} color={totalProfit >= 0 ? "#16A34A" : "#DC2626"} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="kpi-label-row" style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                <div className="kpi-icon" style={{ width: "36px", height: "36px", background: totalProfit >= 0 ? "#F0FDF4" : "#FEF2F2", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <TrendingUp size={18} color={totalProfit >= 0 ? "#16A34A" : "#DC2626"} />
                 </div>
-                <span style={{ fontSize: "13px", color: "#9CA3AF", fontWeight: "500" }}>Bilanci / Fitimi</span>
+                <span style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: "500", lineHeight: 1.3 }}>Bilanci / Fitimi</span>
               </div>
-              <div style={{ fontSize: "28px", fontWeight: "700", color: totalProfit >= 0 ? "#111827" : "#DC2626", lineHeight: 1 }}>
+              <div className="kpi-value" style={{ fontSize: "24px", fontWeight: "700", color: totalProfit >= 0 ? "#111827" : "#DC2626", lineHeight: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {totalProfit >= 0 ? "+" : ""}{formatEuro(totalProfit)}
               </div>
-              <div style={{ fontSize: "12px", color: totalProfit >= 0 ? "#16A34A" : "#DC2626", marginTop: "6px" }}>
+              <div style={{ fontSize: "11px", color: totalProfit >= 0 ? "#16A34A" : "#DC2626", marginTop: "6px" }}>
                 {profPct}% e vlerës totale
               </div>
             </div>
-            <Sparkline positive={totalProfit >= 0} />
+            <div className="kpi-sparkline" style={{ flexShrink: 0 }}><Sparkline positive={totalProfit >= 0} /></div>
           </div>
         </div>
       </div>

@@ -35,6 +35,14 @@ export default function ExpenseTable({ projects, totals, grandTotal }: {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
+    <>
+    <style>{`
+      @media (max-width: 768px) {
+        .exp-desktop-table { display: none !important; }
+        .exp-mobile-cards  { display: flex !important; }
+      }
+      .exp-mobile-cards { display: none; flex-direction: column; gap: 8px; padding: 12px; }
+    `}</style>
     <div className="card" style={{ overflow: "hidden" }}>
       <div style={{ padding: "18px 20px 16px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
@@ -46,7 +54,41 @@ export default function ExpenseTable({ projects, totals, grandTotal }: {
         </div>
       </div>
 
-      <div style={{ overflowX: "auto" }}>
+      {/* Mobile cards */}
+      <div className="exp-mobile-cards">
+        {projects.map((p) => (
+          <Link key={p.id} href={`/projektet/${p.id}`} style={{ textDecoration: "none" }}>
+            <div style={{ background: "#F9FAFB", borderRadius: "10px", padding: "12px 14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>{p.name}</div>
+                  <div style={{ fontSize: "11px", color: "#9CA3AF" }}>{p.client.name}</div>
+                </div>
+                <div style={{ fontSize: "15px", fontWeight: "800", color: "#111827" }}>{fmt(p.totaliShpenzimeve)}</div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px" }}>
+                {[
+                  ["Operative", p.shpenzimeOperative],
+                  ["Materiali", p.shpenzimeMateriali],
+                  ["Ushqim", p.shpenzimeUshqimBonuse],
+                  ["Transport", p.shpenzimeTransportSherbimi],
+                  ["Shtesë", p.puneShteseTotal],
+                ].filter(([, v]) => (v as number) > 0).map(([label, val]) => (
+                  <div key={label as string} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#6B7280" }}>
+                    <span>{label}</span>
+                    <span style={{ fontWeight: "600", color: "#374151" }}>{fmt(val as number)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Link>
+        ))}
+        {projects.length === 0 && (
+          <div style={{ textAlign: "center", padding: "32px 0", color: "#9CA3AF", fontSize: "13px" }}>Nuk ka shpenzime ende</div>
+        )}
+      </div>
+
+      <div className="exp-desktop-table" style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ background: "#F9FAFB" }}>
@@ -148,5 +190,6 @@ export default function ExpenseTable({ projects, totals, grandTotal }: {
         )}
       </div>
     </div>
+    </>
   );
 }

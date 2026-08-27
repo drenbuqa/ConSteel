@@ -8,9 +8,9 @@ export async function GET(request: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";
-  if (q.length < 2) return NextResponse.json({ clients: [], projects: [] });
+  if (q.length < 2) return NextResponse.json({ clients: [], projects: [], reports: [] });
 
-  const [clients, projects] = await Promise.all([
+  const [clients, projects, reports] = await Promise.all([
     prisma.client.findMany({
       where: {
         OR: [
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
           { phone: { contains: q, mode: "insensitive" } },
         ],
       },
-      select: { id: true, name: true, phone: true, email: true },
+      select: { id: true, name: true, phone: true, email: true, _count: { select: { projects: true } } },
       take: 5,
     }),
     prisma.project.findMany({
@@ -36,7 +36,22 @@ export async function GET(request: NextRequest) {
       },
       take: 5,
     }),
+    prisma.report.findMany({
+      where: {
+        OR: [
+          { title: { contains: q, mode: "insensitive" } },
+          { content: { contains: q, mode: "insensitive" } },
+          { project: { name: { contains: q, mode: "insensitive" } } },
+        ],
+      },
+      select: {
+        id: true, title: true, date: true,
+        project: { select: { id: true, name: true } },
+      },
+      orderBy: { date: "desc" },
+      take: 4,
+    }),
   ]);
 
-  return NextResponse.json({ clients, projects });
+  return NextResponse.json({ clients, projects, reports });
 }

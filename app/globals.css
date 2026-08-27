@@ -208,12 +208,18 @@ button {
 
 
 /* ── Mobile responsive utilities ─────────────────────────── */
-@media (max-width: 640px) {
-  /* Touch targets */
-  .btn-primary, .btn-secondary, .btn-danger {
+@media (max-width: 768px) {
+  .input-field {
     min-height: 44px;
-    padding: 10px 18px;
+    font-size: 16px; /* prevents iOS zoom on focus */
   }
+  /* Prevent horizontal overflow globally */
+  body { overflow-x: hidden; }
+
+  /* KPI cards: hide sparkline, tighter padding */
+  .kpi-sparkline { display: none !important; }
+  .kpi-card-inner { padding: 14px !important; }
+  .kpi-value { font-size: 20px !important; }
 }
 
 /* ── Skeleton shimmer ─────────────────────────────────────── */

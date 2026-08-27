@@ -1,87 +1,129 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, Building2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { LayoutDashboard, FolderKanban, Users, Receipt, BarChart3, Building2, Search } from "lucide-react";
+import Link from "next/link";
 import Sidebar from "./Sidebar";
+import GlobalSearch from "./GlobalSearch";
 
-// Pages where the sidebar/nav should be hidden (full-screen form pages)
 const isFormPath = (p: string) =>
   p === "/projektet/i-ri" || p.endsWith("/redakto");
 
+const BOTTOM_TABS = [
+  { href: "/",           label: "Kryefaqja",  icon: LayoutDashboard },
+  { href: "/projektet",  label: "Projektet",  icon: FolderKanban },
+  { href: "/klientet",   label: "Klientët",   icon: Users },
+  { href: "/shpenzimet", label: "Shpenzimet", icon: Receipt },
+  { href: "/raportet",   label: "Raportet",   icon: BarChart3 },
+];
+
+const PAGE_TITLES: Record<string, string> = {
+  "/":           "Kryefaqja",
+  "/projektet":  "Projektet",
+  "/klientet":   "Klientët",
+  "/shpenzimet": "Shpenzimet",
+  "/raportet":   "Raportet",
+  "/barazimi":   "Barazimi",
+};
+
+function getPageTitle(pathname: string): string {
+  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
+  if (pathname.startsWith("/projektet/")) return "Projekt";
+  if (pathname.startsWith("/klientet/"))  return "Klient";
+  return "ConSteel";
+}
+
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
-  const pathname   = usePathname();
-  const [open, setOpen] = useState(false);
-
-  // Close mobile menu on navigation
-  useEffect(() => { setOpen(false); }, [pathname]);
-
+  const pathname = usePathname();
   const hideNav = isFormPath(pathname);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  const pageTitle = getPageTitle(pathname);
 
   return (
     <>
       <style>{`
-        /* Desktop: show sidebar, hide mobile bar */
         .shell-sidebar    { display: flex; }
-        .shell-mobile-bar { display: none !important; }
+        .shell-bottom-nav { display: none !important; }
+        .shell-mobile-top { display: none !important; }
 
-        /* Mobile: hide sidebar, show mobile bar */
         @media (max-width: 768px) {
           .shell-sidebar    { display: none !important; }
-          .shell-mobile-bar { display: flex !important; }
-          .shell-main       { padding: 16px !important; }
+          .shell-bottom-nav { display: flex !important; }
+          .shell-mobile-top { display: flex !important; }
+          .shell-main       { padding: 16px 14px 90px !important; }
         }
       `}</style>
 
+      {searchOpen && <GlobalSearch onClose={() => setSearchOpen(false)} />}
+
       <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#F2F4F8" }}>
 
-        {/* ── Desktop sidebar ───────────────────────────── */}
+        {/* ── Desktop sidebar ── */}
         {!hideNav && (
           <div className="shell-sidebar" style={{ flexShrink: 0 }}>
             <Sidebar />
           </div>
         )}
 
-        {/* ── Mobile overlay ────────────────────────────── */}
-        {!hideNav && open && (
-          <>
-            {/* Backdrop */}
-            <div
-              onClick={() => setOpen(false)}
-              style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 40, backdropFilter: "blur(2px)" }}
-            />
-            {/* Drawer */}
-            <div style={{ position: "fixed", left: 0, top: 0, bottom: 0, width: "240px", zIndex: 50 }}>
-              <Sidebar onClose={() => setOpen(false)} />
-            </div>
-          </>
-        )}
-
-        {/* ── Content area ──────────────────────────────── */}
+        {/* ── Content ── */}
         <main style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", minWidth: 0 }}>
 
-          {/* Mobile top bar */}
+          {/* ── Mobile top bar ── */}
           {!hideNav && (
-            <div
-              className="shell-mobile-bar"
-              style={{
-                alignItems: "center", justifyContent: "space-between",
-                padding: "12px 16px", background: "white",
-                borderBottom: "1px solid #EAECF0", gap: "12px",
-                position: "sticky", top: 0, zIndex: 30,
-              }}
-            >
-              <button
-                onClick={() => setOpen(true)}
-                style={{ background: "#F3F4F6", border: "none", borderRadius: "8px", width: "44px", height: "44px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
-              >
-                <Menu size={18} color="#374151" />
-              </button>
+            <div className="shell-mobile-top" style={{
+              alignItems: "center",
+              padding: "0 16px",
+              height: "52px",
+              background: "white",
+              borderBottom: "1px solid #EAECF0",
+              position: "sticky", top: 0, zIndex: 30, flexShrink: 0,
+            }}>
+              {/* Brand */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1 }}>
-                <div style={{ width: "28px", height: "28px", background: "#111827", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Building2 size={15} color="white" />
+                <div style={{ width: "26px", height: "26px", background: "#111827", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Building2 size={14} color="white" />
                 </div>
-                <span style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>ConSteel</span>
+                <span style={{ fontSize: "14px", fontWeight: "700", color: "#9CA3AF" }}>ConSteel</span>
+              </div>
+
+              {/* Centered page title */}
+              <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }}>
+                <span style={{ fontSize: "15px", fontWeight: "700", color: "#111827", whiteSpace: "nowrap" }}>
+                  {pageTitle}
+                </span>
+              </div>
+
+              {/* Search trigger */}
+              <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  style={{
+                    width: "36px", height: "36px", borderRadius: "10px",
+                    background: "#F3F4F6", border: "none", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#E5E7EB"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#F3F4F6"; }}
+                >
+                  <Search size={16} color="#374151" />
+                </button>
               </div>
             </div>
           )}
@@ -90,6 +132,40 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             {children}
           </div>
         </main>
+
+        {/* ── Mobile bottom tab bar ── */}
+        {!hideNav && (
+          <nav className="shell-bottom-nav" style={{
+            position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
+            background: "white", borderTop: "1px solid #EAECF0",
+            alignItems: "stretch", height: "64px",
+            paddingBottom: "env(safe-area-inset-bottom)",
+          }}>
+            {BOTTOM_TABS.map(({ href, label, icon: Icon }) => {
+              const active = isActive(href);
+              return (
+                <Link key={href} href={href} style={{
+                  flex: 1, display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center", gap: "3px",
+                  textDecoration: "none", color: active ? "#111827" : "#9CA3AF",
+                  transition: "color 0.15s", paddingTop: "2px",
+                }}>
+                  <div style={{
+                    width: "32px", height: "28px", borderRadius: "8px",
+                    background: active ? "#F3F4F6" : "transparent",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "background 0.15s",
+                  }}>
+                    <Icon size={18} />
+                  </div>
+                  <span style={{ fontSize: "10px", fontWeight: active ? "700" : "500", letterSpacing: "0.01em" }}>
+                    {label}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+        )}
       </div>
     </>
   );

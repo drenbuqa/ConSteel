@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, FolderKanban, Users, Receipt,
-  BarChart3, Building2, LogOut, TrendingUp, ShieldCheck, X,
+  BarChart3, Building2, LogOut, TrendingUp, ShieldCheck, X, Search,
 } from "lucide-react";
 import GlobalSearch from "./GlobalSearch";
+import { useState } from "react";
 
 const navItems = [
   {
@@ -30,6 +31,7 @@ const navItems = [
 
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -56,7 +58,6 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           </div>
           <div>
             <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", lineHeight: 1.2 }}>ConSteel</div>
-            <div style={{ fontSize: "11px", color: "#9CA3AF", lineHeight: 1.2 }}>Pro Dashboard</div>
           </div>
         </div>
         {onClose && (
@@ -69,9 +70,24 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         )}
       </div>
 
-      {/* Global search */}
+      {/* Global search trigger */}
+      {searchOpen && <GlobalSearch onClose={() => setSearchOpen(false)} />}
       <div style={{ marginBottom: "16px" }}>
-        <GlobalSearch />
+        <button
+          onClick={() => setSearchOpen(true)}
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: "8px",
+            padding: "8px 12px", background: "#F9FAFB", border: "1.5px solid #EAECF0",
+            borderRadius: "9px", cursor: "pointer", fontFamily: "Inter, sans-serif",
+            transition: "border-color 0.15s, background 0.15s",
+          }}
+          onMouseEnter={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "#D1D5DB"; b.style.background = "#F3F4F6"; }}
+          onMouseLeave={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "#EAECF0"; b.style.background = "#F9FAFB"; }}
+        >
+          <Search size={14} color="#9CA3AF" />
+          <span style={{ fontSize: "13px", color: "#9CA3AF", flex: 1, textAlign: "left" }}>Kërko...</span>
+          <kbd style={{ fontSize: "10px", color: "#9CA3AF", background: "#F3F4F6", border: "1px solid #E5E7EB", borderRadius: "4px", padding: "1px 5px", fontFamily: "Inter, sans-serif" }}>⌘K</kbd>
+        </button>
       </div>
 
       {/* Navigation — flex: 1 so it fills available space */}
