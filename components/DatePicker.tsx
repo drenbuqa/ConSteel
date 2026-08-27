@@ -116,7 +116,9 @@ export default function DatePicker({ value, onChange, placeholder, minDate, drop
       </button>
 
       {open && (
-        <div style={{
+        <>
+        <style>{`@media (max-width: 768px) { .dp-cal { left: 0 !important; right: 0 !important; min-width: unset !important; } }`}</style>
+        <div className="dp-cal" style={{
           position: "absolute",
           ...(dropUp ? { bottom: "100%" } : { top: "100%" }),
           left: 0, zIndex: 200, minWidth: "252px",
@@ -266,6 +268,7 @@ export default function DatePicker({ value, onChange, placeholder, minDate, drop
             </div>
           )}
         </div>
+        </>
       )}
     </div>
   );

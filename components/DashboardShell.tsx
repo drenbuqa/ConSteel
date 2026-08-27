@@ -74,7 +74,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
       {searchOpen && <GlobalSearch onClose={() => setSearchOpen(false)} />}
 
-      <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#F2F4F8" }}>
+      <div style={{ display: "flex", height: "100dvh", overflow: "hidden", background: "#F2F4F8" }}>
 
         {/* ── Desktop sidebar ── */}
         {!hideNav && (
@@ -95,6 +95,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               background: "white",
               borderBottom: "1px solid #EAECF0",
               position: "sticky", top: 0, zIndex: 30, flexShrink: 0,
+              WebkitTransform: "translateZ(0)", transform: "translateZ(0)",
             }}>
               {/* Brand */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1 }}>

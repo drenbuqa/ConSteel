@@ -907,7 +907,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: "0", marginBottom: "20px", borderBottom: "2px solid #EAECF0", overflowX: "auto", WebkitOverflowScrolling: "touch" as never, scrollbarWidth: "none" as never }}>
+      <div style={{ display: "flex", gap: "0", marginBottom: "20px", borderBottom: "2px solid #EAECF0", overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" as never, scrollbarWidth: "none" as never }}>
         {tabs.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)} className="pd-tab-btn" style={{
             padding: "10px 16px", fontSize: "13px",

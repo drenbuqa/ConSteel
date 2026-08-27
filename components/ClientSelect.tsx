@@ -142,7 +142,7 @@ export default function ClientSelect({ clients, value, onChange, onClientAdded, 
               <div style={{ position: "relative" }}>
                 <Search size={13} color="#9CA3AF" style={{ position: "absolute", left: "9px", top: "50%", transform: "translateY(-50%)" }} />
                 <input
-                  autoFocus placeholder="Kërko klient..."
+                  placeholder="Kërko klient..."
                   value={search} onChange={(e) => setSearch(e.target.value)}
                   style={{ width: "100%", padding: "7px 10px 7px 28px", border: "1px solid #EAECF0", borderRadius: "6px", fontSize: "13px", fontFamily: "Inter, sans-serif", outline: "none", background: "#F9FAFB", boxSizing: "border-box" } as React.CSSProperties}
                 />

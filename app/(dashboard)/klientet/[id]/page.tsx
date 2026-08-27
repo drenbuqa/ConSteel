@@ -12,6 +12,7 @@ import {
 import Modal from "@/components/Modal";
 import { SkeletonClientDetail, useDelayedLoading } from "@/components/Skeleton";
 import PageTransition from "@/components/PageTransition";
+import { useSetPageTitle } from "@/contexts/PageTitle";
 
 interface Project {
   id: string;
@@ -275,6 +276,8 @@ export default function ClientDetailPage() {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", notes: "" });
 
+  useSetPageTitle(client?.name ?? null);
+
   const fetchClient = useCallback(async () => {
     const res = await fetch(`/api/klientet/${id}`);
     if (res.ok) {
@@ -332,20 +335,26 @@ export default function ClientDetailPage() {
         .proj-row:hover .open-chip { opacity: 1 !important; }
         .open-chip { opacity: 0; transition: opacity 0.15s; }
         .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); }
+        .cd-breadcrumb  { display: flex; }
+        .cd-hero-desktop { display: block; }
+        .cd-hero-mobile  { display: none; }
         @media (max-width: 640px) {
           .stats-bar { grid-template-columns: repeat(2, 1fr); }
           .stats-bar > div { border-left: none !important; border-top: 1px solid #F3F4F6; }
         }
         .client-proj-table { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 130px 80px; }
         @media (max-width: 768px) {
+          .cd-breadcrumb   { display: none !important; }
+          .cd-hero-desktop { display: none !important; }
+          .cd-hero-mobile  { display: block !important; }
           .client-proj-table { grid-template-columns: 2fr 1fr 1fr; }
           .client-proj-table .hide-mobile { display: none !important; }
         }
       `}</style>
 
       <PageTransition>
-      {/* Breadcrumb */}
-      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "20px" }}>
+      {/* Breadcrumb — hidden on mobile */}
+      <div className="cd-breadcrumb" style={{ alignItems: "center", gap: "6px", marginBottom: "20px" }}>
         <Link href="/klientet" className="breadcrumb-link" style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#9CA3AF", fontWeight: "500" }}>
           <ArrowLeft size={13} /> Klientët
         </Link>
@@ -353,7 +362,8 @@ export default function ClientDetailPage() {
         <span style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>{client.name}</span>
       </div>
 
-      {/* Hero card */}
+      {/* ── Desktop hero ── */}
+      <div className="cd-hero-desktop">
       <div style={{ borderRadius: "16px", marginBottom: "16px", overflow: "hidden", border: "1px solid #EAECF0", background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
         <div style={{ height: "4px", background: "#111827" }} />
 
@@ -434,6 +444,68 @@ export default function ClientDetailPage() {
               <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "3px" }}>{s.sub}</div>
             </div>
           ))}
+        </div>
+      </div>
+      </div>{/* end cd-hero-desktop */}
+
+      {/* ── Mobile hero ── */}
+      <div className="cd-hero-mobile" style={{ marginBottom: "14px" }}>
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ height: "3px", background: "#111827" }} />
+          <div style={{ padding: "14px 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+              <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: "#111827", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span style={{ fontSize: "15px", fontWeight: "700", color: "white" }}>{initials}</span>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h1 style={{ fontSize: "17px", fontWeight: "700", color: "#111827", margin: 0, lineHeight: 1.2 }}>{client.name}</h1>
+                <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>
+                  Klient që nga {new Date(client.createdAt).toLocaleDateString("sq-AL", { month: "long", year: "numeric" })}
+                </div>
+              </div>
+            </div>
+            {(client.phone || client.email || client.address) && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "12px" }}>
+                {client.phone && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
+                    <Phone size={10} color="#9CA3AF" />{client.phone}
+                  </span>
+                )}
+                {client.email && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
+                    <Mail size={10} color="#9CA3AF" />{client.email}
+                  </span>
+                )}
+                {client.address && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
+                    <MapPin size={10} color="#9CA3AF" />{client.address}
+                  </span>
+                )}
+              </div>
+            )}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              {[
+                { label: "Projekte", value: client.projects.length, color: "#111827" },
+                { label: "Aktive", value: activeProjects.length, color: "#16A34A" },
+                { label: "Vlera", value: fmt(totalValue), color: "#111827" },
+                { label: "Shpenzime", value: fmt(totalExpenses), color: totalExpenses > totalValue ? "#DC2626" : "#374151" },
+              ].map((s) => (
+                <div key={s.label} style={{ background: "#F9FAFB", borderRadius: "10px", padding: "10px 12px" }}>
+                  <div style={{ fontSize: "10px", fontWeight: "600", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "3px" }}>{s.label}</div>
+                  <div style={{ fontSize: "15px", fontWeight: "700", color: s.color }}>{s.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: "flex", borderTop: "1px solid #F3F4F6" }}>
+            <button onClick={() => setEditOpen(true)} style={{ flex: 1, padding: "11px 0", background: "none", border: "none", fontSize: "13px", fontWeight: "600", color: "#111827", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontFamily: "Inter, sans-serif" }}>
+              <Edit2 size={13} /> Ndrysho
+            </button>
+            <div style={{ width: "1px", background: "#F3F4F6" }} />
+            <button onClick={() => setDeleteConfirm(true)} style={{ flex: 1, padding: "11px 0", background: "none", border: "none", fontSize: "13px", fontWeight: "600", color: "#DC2626", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontFamily: "Inter, sans-serif" }}>
+              <Trash2 size={13} /> Fshi
+            </button>
+          </div>
         </div>
       </div>
 
