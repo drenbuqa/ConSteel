@@ -123,7 +123,7 @@ export default function DatePicker({ value, onChange, placeholder, minDate, drop
         <div className="dp-cal" style={{
           position: "absolute",
           ...(dropUp ? { bottom: "100%" } : { top: "100%" }),
-          left: 0, zIndex: 200, minWidth: "252px",
+          left: 0, zIndex: 1100, minWidth: "252px",
           background: "white", border: "1.5px solid #111827",
           ...(dropUp ? { borderBottom: "none", borderRadius: "10px 10px 0 0" } : { borderTop: "none", borderRadius: "0 0 10px 10px" }),
           boxShadow: "0 10px 32px rgba(0,0,0,0.13)",
