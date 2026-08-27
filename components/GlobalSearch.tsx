@@ -51,15 +51,12 @@ export default function GlobalSearch({ onClose }: Props) {
   const [focused, setFocused] = useState(0);
   const [visible, setVisible] = useState(false);
   const [recent, setRecent] = useState<string[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null); // kept for clear-button refocus
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     setRecent(getRecent());
-    requestAnimationFrame(() => {
-      setVisible(true);
-      setTimeout(() => inputRef.current?.focus(), 60);
-    });
+    requestAnimationFrame(() => setVisible(true));
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
@@ -166,6 +163,7 @@ export default function GlobalSearch({ onClose }: Props) {
         }
         .gs-item { display: flex; align-items: center; gap: "12px"; cursor: pointer; transition: background 0.1s; }
         .gs-item:hover, .gs-item.gs-focused { background: #F9FAFB; }
+        @media (max-width: 768px) { .gs-kbd-hint { display: none !important; } }
         @media (min-width: 769px) {
           .gs-backdrop { display: flex; align-items: flex-start; justify-content: center; padding-top: 80px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
           .gs-panel { position: relative; top: auto; left: auto; right: auto; border-radius: 16px; width: 100%; max-width: 580px; box-shadow: 0 32px 80px rgba(0,0,0,0.22); }
@@ -189,6 +187,7 @@ export default function GlobalSearch({ onClose }: Props) {
             }
             <input
               ref={inputRef}
+              autoFocus
               value={query}
               onChange={(e) => { setQuery(e.target.value); setFocused(0); }}
               placeholder="Kërko projekte, klientë, raporte..."
@@ -312,9 +311,9 @@ export default function GlobalSearch({ onClose }: Props) {
             })}
           </div>
 
-          {/* Footer hint — keyboard shortcut (desktop) */}
+          {/* Footer hint — keyboard shortcuts, desktop only */}
           {results.length > 0 && (
-            <div style={{ borderTop: "1px solid #F3F4F6", padding: "8px 18px", display: "flex", gap: "14px", flexShrink: 0 }}>
+            <div className="gs-kbd-hint" style={{ borderTop: "1px solid #F3F4F6", padding: "8px 18px", display: "flex", gap: "14px", flexShrink: 0 }}>
               {[["↑↓", "navigo"], ["↵", "hap"], ["Esc", "mbyll"]].map(([key, label]) => (
                 <span key={key} style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "11px", color: "#9CA3AF" }}>
                   <kbd style={{ background: "#F3F4F6", border: "1px solid #E5E7EB", borderRadius: "4px", padding: "1px 5px", fontSize: "10px", fontFamily: "Inter, sans-serif", color: "#374151" }}>{key}</kbd>

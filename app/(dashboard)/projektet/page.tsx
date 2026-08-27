@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Plus, Search, MapPin, Users, FolderOpen, CheckCircle2, Clock, Archive, ChevronDown, X } from "lucide-react";
-import { SkeletonTable, useDelayedLoading } from "@/components/Skeleton";
+import { SkeletonTable, SkeletonProjectCards, useDelayedLoading } from "@/components/Skeleton";
 import SearchBar from "@/components/SearchBar";
 import PageTransition from "@/components/PageTransition";
 
@@ -281,7 +281,10 @@ export default function ProjektetPage() {
 
       {/* Mobile cards */}
       <div className="proj-mobile-cards" style={{ gap: "10px", marginBottom: "8px" }}>
-        {projects.map((p) => {
+        {loading ? (
+          showSkeleton ? <SkeletonProjectCards count={5} /> : null
+        ) : null}
+        {!loading && projects.map((p) => {
           const remaining = Math.max(p.totalPrice - p.totaliShpenzimeve, 0);
           return (
             <Link key={p.id} href={`/projektet/${p.id}`} style={{ textDecoration: "none" }}>
@@ -308,7 +311,7 @@ export default function ProjektetPage() {
             </Link>
           );
         })}
-        {projects.length === 0 && !showSkeleton && (
+        {!loading && projects.length === 0 && (
           <div style={{ textAlign: "center", padding: "48px 16px" }}>
             <div style={{ fontSize: "15px", fontWeight: "600", color: "#111827", marginBottom: "6px" }}>
               {search || statusFilter ? "Nuk u gjet asnjë projekt" : "Nuk ka projekte ende"}

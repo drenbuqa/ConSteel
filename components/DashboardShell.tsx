@@ -6,6 +6,7 @@ import { LayoutDashboard, FolderKanban, Users, Receipt, BarChart3, Building2, Se
 import Link from "next/link";
 import Sidebar from "./Sidebar";
 import GlobalSearch from "./GlobalSearch";
+import { PageTitleProvider, usePageTitle } from "@/contexts/PageTitle";
 
 const isFormPath = (p: string) =>
   p === "/projektet/i-ri" || p.endsWith("/redakto");
@@ -34,10 +35,11 @@ function getPageTitle(pathname: string): string {
   return "ConSteel";
 }
 
-export default function DashboardShell({ children }: { children: React.ReactNode }) {
+function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideNav = isFormPath(pathname);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { dynamicTitle } = usePageTitle();
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -53,7 +55,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const pageTitle = getPageTitle(pathname);
+  const pageTitle = dynamicTitle ?? getPageTitle(pathname);
 
   return (
     <>
@@ -103,8 +105,8 @@ export default function DashboardShell({ children }: { children: React.ReactNode
               </div>
 
               {/* Centered page title */}
-              <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }}>
-                <span style={{ fontSize: "15px", fontWeight: "700", color: "#111827", whiteSpace: "nowrap" }}>
+              <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", pointerEvents: "none", maxWidth: "45%", overflow: "hidden" }}>
+                <span style={{ fontSize: "15px", fontWeight: "700", color: "#111827", whiteSpace: "nowrap", display: "block", textOverflow: "ellipsis", overflow: "hidden" }}>
                   {pageTitle}
                 </span>
               </div>
@@ -168,5 +170,13 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         )}
       </div>
     </>
+  );
+}
+
+export default function DashboardShell({ children }: { children: React.ReactNode }) {
+  return (
+    <PageTitleProvider>
+      <ShellInner>{children}</ShellInner>
+    </PageTitleProvider>
   );
 }

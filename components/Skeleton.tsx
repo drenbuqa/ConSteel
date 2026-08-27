@@ -48,12 +48,21 @@ export function SkeletonTable({ rows = 5 }: { rows?: number }) {
   );
 }
 
-// ── Client list card grid skeleton ────────────────────────────────────────────
+// ── Client list skeleton — card grid on desktop, compact rows on mobile ───────
 export function SkeletonClientGrid({ count = 6 }: { count?: number }) {
   return (
     <>
-      <style>{SHIMMER}</style>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+      <style>{SHIMMER}{`
+        .skl-cl-desktop { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .skl-cl-mobile  { display: none; }
+        @media (max-width: 768px) {
+          .skl-cl-desktop { display: none !important; }
+          .skl-cl-mobile  { display: flex !important; flex-direction: column; }
+        }
+      `}</style>
+
+      {/* Desktop: card grid */}
+      <div className="skl-cl-desktop">
         {Array.from({ length: count }).map((_, i) => (
           <div key={i} className="card" style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -71,6 +80,54 @@ export function SkeletonClientGrid({ count = 6 }: { count?: number }) {
                   <Line w="80%" h="14px" />
                 </div>
               ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile: compact list rows inside a card */}
+      <div className="skl-cl-mobile card" style={{ overflow: "hidden" }}>
+        {Array.from({ length: count }).map((_, i) => (
+          <div key={i} style={{
+            display: "flex", alignItems: "center", gap: "12px",
+            padding: "13px 16px",
+            borderBottom: i < count - 1 ? "1px solid #F3F4F6" : "none",
+          }}>
+            <div style={{ ...shimmerStyle, width: "36px", height: "36px", borderRadius: "10px", flexShrink: 0 }} />
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+              <Line w="55%" h="14px" />
+              <Line w="38%" h="11px" />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "5px", alignItems: "flex-end" }}>
+              <Line w="20px" h="14px" />
+              <Line w="36px" h="11px" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// ── Project mobile card list skeleton ─────────────────────────────────────────
+export function SkeletonProjectCards({ count = 5 }: { count?: number }) {
+  return (
+    <>
+      <style>{SHIMMER}</style>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {Array.from({ length: count }).map((_, i) => (
+          <div key={i} className="card" style={{ padding: "14px 16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "7px", paddingRight: "12px" }}>
+                <Line w="62%" h="15px" />
+                <Line w="38%" h="11px" />
+              </div>
+              <div style={{ ...shimmerStyle, width: "64px", height: "22px", borderRadius: "20px", flexShrink: 0 }} />
+            </div>
+            <div style={{ height: "1px", background: "#F3F4F6", marginBottom: "10px" }} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Line w="30%" h="12px" />
+              <Line w="22%" h="14px" />
             </div>
           </div>
         ))}

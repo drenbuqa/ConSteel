@@ -15,6 +15,7 @@ import {
 import DatePicker from "@/components/DatePicker";
 import ClientSelect from "@/components/ClientSelect";
 import PageTransition from "@/components/PageTransition";
+import { useSetPageTitle } from "@/contexts/PageTitle";
 const CLOUDINARY_CLOUD = "drljgepgy";
 const CLOUDINARY_PRESET = "ConSteel_uploads";
 
@@ -654,6 +655,8 @@ export default function ProjectDetailPage() {
   const [reportForm, setReportForm] = useState({ title: "", content: "", date: "" });
   const [reportSaving, setReportSaving] = useState(false);
 
+  useSetPageTitle(project?.name ?? null);
+
   const fetchProject = useCallback(async () => {
     const res = await fetch(`/api/projektet/${id}`);
     if (res.ok) {
@@ -777,11 +780,23 @@ export default function ProjectDetailPage() {
         .pd-3grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .pd-2grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .pd-2form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .pd-breadcrumb { display: flex; }
+        .pd-hero-desktop { display: block; }
+        .pd-hero-mobile  { display: none; }
         @media (max-width: 768px) {
-          .pd-3grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+          .pd-breadcrumb  { display: none !important; }
+          .pd-hero-desktop { display: none !important; }
+          .pd-hero-mobile  { display: block !important; }
+          .pd-3grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
           .pd-3grid > *:last-child:nth-child(odd) { grid-column: 1 / -1; }
-          .pd-2grid { grid-template-columns: 1fr; }
+          .pd-2grid { grid-template-columns: 1fr; gap: 10px; }
           .pd-2form { grid-template-columns: 1fr; }
+          .pd-kpi-inner { padding: 12px 14px !important; }
+          .pd-kpi-label { font-size: 10px !important; margin-bottom: 8px !important; }
+          .pd-kpi-value { font-size: 18px !important; }
+          .pd-kpi-sub   { font-size: 11px !important; margin-top: 5px !important; }
+          .pd-tab-btn   { padding: 8px 10px !important; font-size: 12px !important; }
+          .pd-tab-icon  { display: none !important; }
         }
         @media (max-width: 400px) {
           .pd-3grid { grid-template-columns: 1fr; }
@@ -789,8 +804,8 @@ export default function ProjectDetailPage() {
       `}</style>
 
       <PageTransition>
-      {/* Breadcrumb */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px", fontSize: "13px", color: "#9CA3AF" }}>
+      {/* Breadcrumb — hidden on mobile (top bar shows project name) */}
+      <div className="pd-breadcrumb" style={{ alignItems: "center", gap: "8px", marginBottom: "20px", fontSize: "13px", color: "#9CA3AF" }}>
         <Link href="/projektet" className="breadcrumb-link" style={{ display: "flex", alignItems: "center", gap: "4px", color: "#9CA3AF" }}>
           <ArrowLeft size={14} /> Projektet
         </Link>
@@ -798,7 +813,8 @@ export default function ProjectDetailPage() {
         <span style={{ color: "#374151", fontWeight: "500" }}>{project.name}</span>
       </div>
 
-      {/* Project header card */}
+      {/* ── Desktop header card ── */}
+      <div className="pd-hero-desktop">
       <div className="card" style={{ padding: "22px 24px", marginBottom: "16px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
           <div style={{ width: "52px", height: "52px", borderRadius: "12px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid #EAECF0" }}>
@@ -849,11 +865,51 @@ export default function ProjectDetailPage() {
           </div>
         </div>
       </div>
+      </div>{/* end pd-hero-desktop */}
+
+      {/* ── Mobile hero ── */}
+      <div className="pd-hero-mobile" style={{ marginBottom: "14px" }}>
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ padding: "14px 16px 14px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
+              <h1 style={{ fontSize: "17px", fontWeight: "700", color: "#111827", margin: 0, lineHeight: 1.3, flex: 1, paddingRight: "10px" }}>{project.name}</h1>
+              <StatusBadge status={project.status} />
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
+                <Briefcase size={10} color="#9CA3AF" />{project.client.name}
+              </span>
+              {project.location && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
+                  <MapPin size={10} color="#9CA3AF" />{project.location}
+                </span>
+              )}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
+                <Users size={10} color="#9CA3AF" />{project.workers} punëtorë
+              </span>
+              {project.startDate && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
+                  <Calendar size={10} color="#9CA3AF" />{fmtDate(project.startDate)}
+                </span>
+              )}
+            </div>
+          </div>
+          <div style={{ display: "flex", borderTop: "1px solid #F3F4F6" }}>
+            <button onClick={() => setEditOpen(true)} style={{ flex: 1, padding: "11px 0", background: "none", border: "none", fontSize: "13px", fontWeight: "600", color: "#111827", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontFamily: "Inter, sans-serif" }}>
+              <Edit2 size={13} /> Ndrysho
+            </button>
+            <div style={{ width: "1px", background: "#F3F4F6" }} />
+            <button onClick={() => setDeleteConfirm(true)} style={{ flex: 1, padding: "11px 0", background: "none", border: "none", fontSize: "13px", fontWeight: "600", color: "#DC2626", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontFamily: "Inter, sans-serif" }}>
+              <Trash2 size={13} /> Fshi
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: "0", marginBottom: "20px", borderBottom: "2px solid #EAECF0", overflowX: "auto", WebkitOverflowScrolling: "touch" as never, scrollbarWidth: "none" as never }}>
         {tabs.map((t) => (
-          <button key={t.key} onClick={() => setTab(t.key)} style={{
+          <button key={t.key} onClick={() => setTab(t.key)} className="pd-tab-btn" style={{
             padding: "10px 16px", fontSize: "13px",
             fontWeight: tab === t.key ? "600" : "500",
             color: tab === t.key ? "#111827" : "#6B7280",
@@ -863,7 +919,7 @@ export default function ProjectDetailPage() {
             display: "flex", alignItems: "center", gap: "6px",
             whiteSpace: "nowrap", flexShrink: 0,
           }}>
-            {t.icon}{t.label}
+            <span className="pd-tab-icon">{t.icon}</span>{t.label}
           </button>
         ))}
       </div>
@@ -872,39 +928,45 @@ export default function ProjectDetailPage() {
       {tab === "permbledhje" && (
         <div>
           <div className="pd-3grid" style={{ marginBottom: "16px" }}>
-            <div style={{ background: "white", border: "1px solid #EAECF0", borderRadius: "14px", padding: "20px 22px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", overflow: "hidden", position: "relative" }}>
+            <div style={{ background: "white", border: "1px solid #EAECF0", borderRadius: "14px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", overflow: "hidden", position: "relative" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "#111827", borderRadius: "14px 14px 0 0" }} />
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-                <ReceiptText size={12} color="#9CA3AF" /> Vlera e kontratës
+              <div className="pd-kpi-inner" style={{ padding: "20px 22px" }}>
+                <div className="pd-kpi-label" style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <ReceiptText size={12} color="#9CA3AF" /> Vlera e kontratës
+                </div>
+                <div className="pd-kpi-value" style={{ fontSize: "26px", fontWeight: "800", color: "#111827", letterSpacing: "-0.5px", lineHeight: 1 }}>{fmt(project.totalPrice)}</div>
+                <div className="pd-kpi-sub" style={{ marginTop: "10px", fontSize: "12px", color: "#9CA3AF" }}>Shuma totale e rënë dakord me klientin</div>
               </div>
-              <div style={{ fontSize: "26px", fontWeight: "800", color: "#111827", letterSpacing: "-0.5px", lineHeight: 1 }}>{fmt(project.totalPrice)}</div>
-              <div style={{ marginTop: "10px", fontSize: "12px", color: "#9CA3AF" }}>Shuma totale e rënë dakord me klientin</div>
             </div>
-            <div style={{ background: "white", border: "1px solid #EAECF0", borderRadius: "14px", padding: "20px 22px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", overflow: "hidden", position: "relative" }}>
+            <div style={{ background: "white", border: "1px solid #EAECF0", borderRadius: "14px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", overflow: "hidden", position: "relative" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: totalExp > project.totalPrice ? "#DC2626" : "#6B7280", borderRadius: "14px 14px 0 0" }} />
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-                <TrendingDown size={12} color="#9CA3AF" /> Shpenzime totale
-              </div>
-              <div style={{ fontSize: "26px", fontWeight: "800", color: "#111827", letterSpacing: "-0.5px", lineHeight: 1 }}>{fmt(totalExp)}</div>
-              <div style={{ marginTop: "10px", fontSize: "12px", color: totalExp > project.totalPrice ? "#DC2626" : "#9CA3AF" }}>
-                {project.totalPrice > 0
-                  ? totalExp > project.totalPrice
-                    ? `${fmt(totalExp - project.totalPrice)} mbi buxhet`
-                    : `${fmt(project.totalPrice - totalExp)} mbetur nga kontrata`
-                  : "Kostot e projektit deri tani"}
+              <div className="pd-kpi-inner" style={{ padding: "20px 22px" }}>
+                <div className="pd-kpi-label" style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <TrendingDown size={12} color="#9CA3AF" /> Shpenzime totale
+                </div>
+                <div className="pd-kpi-value" style={{ fontSize: "26px", fontWeight: "800", color: "#111827", letterSpacing: "-0.5px", lineHeight: 1 }}>{fmt(totalExp)}</div>
+                <div className="pd-kpi-sub" style={{ marginTop: "10px", fontSize: "12px", color: totalExp > project.totalPrice ? "#DC2626" : "#9CA3AF" }}>
+                  {project.totalPrice > 0
+                    ? totalExp > project.totalPrice
+                      ? `${fmt(totalExp - project.totalPrice)} mbi buxhet`
+                      : `${fmt(project.totalPrice - totalExp)} mbetur`
+                    : "Kostot deri tani"}
+                </div>
               </div>
             </div>
-            <div style={{ background: "white", border: "1px solid #EAECF0", borderRadius: "14px", padding: "20px 22px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", overflow: "hidden", position: "relative" }}>
-              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: "#111827", borderRadius: "14px 14px 0 0" }} />
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-                {profit >= 0 ? <TrendingUp size={12} color="#9CA3AF" /> : <TrendingDown size={12} color="#9CA3AF" />}
-                {profit >= 0 ? "Fitimi" : "Humbja"}
-              </div>
-              <div style={{ fontSize: "26px", fontWeight: "800", color: "#111827", letterSpacing: "-0.5px", lineHeight: 1 }}>
-                {profit >= 0 ? "+" : ""}{fmt(Math.abs(profit))}
-              </div>
-              <div style={{ marginTop: "10px", fontSize: "12px", color: "#9CA3AF" }}>
-                {profit >= 0 ? "Diferenca pozitive kontratë – shpenzime" : "Shpenzimet tejkalojnë vlerën e kontratës"}
+            <div style={{ background: "white", border: "1px solid #EAECF0", borderRadius: "14px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", overflow: "hidden", position: "relative" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: profit >= 0 ? "#16A34A" : "#DC2626", borderRadius: "14px 14px 0 0" }} />
+              <div className="pd-kpi-inner" style={{ padding: "20px 22px" }}>
+                <div className="pd-kpi-label" style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  {profit >= 0 ? <TrendingUp size={12} color="#9CA3AF" /> : <TrendingDown size={12} color="#9CA3AF" />}
+                  {profit >= 0 ? "Fitimi" : "Humbja"}
+                </div>
+                <div className="pd-kpi-value" style={{ fontSize: "26px", fontWeight: "800", color: profit >= 0 ? "#16A34A" : "#DC2626", letterSpacing: "-0.5px", lineHeight: 1 }}>
+                  {profit >= 0 ? "+" : ""}{fmt(Math.abs(profit))}
+                </div>
+                <div className="pd-kpi-sub" style={{ marginTop: "10px", fontSize: "12px", color: "#9CA3AF" }}>
+                  {profit >= 0 ? "Diferenca pozitive" : "Shpenzimet tejkalojnë"}
+                </div>
               </div>
             </div>
           </div>
