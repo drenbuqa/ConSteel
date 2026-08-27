@@ -218,19 +218,19 @@ export default function BarazimiPage() {
                   const isLast = i === projects.length - 1;
 
                   return (
-                    <tr key={p.id} className="bar-row" style={{ borderBottom: isLast ? "none" : "1px solid #F3F4F6" }}>
+                    <tr key={p.id} className="bar-row" style={{ borderBottom: isLast ? "none" : "1px solid #F3F4F6", cursor: "pointer" }}
+                      onClick={() => { window.location.href = `/projektet/${p.id}?tab=pagesat`; }}
+                    >
                       {/* Project */}
                       <td style={{ padding: "14px 16px" }}>
-                        <Link href={`/projektet/${p.id}`} className="bar-proj-name" style={{ fontSize: "14px", fontWeight: "600", color: "#111827", textDecoration: "none" }}>
+                        <span className="bar-proj-name" style={{ fontSize: "14px", fontWeight: "600", color: "#111827" }}>
                           {p.name}
-                        </Link>
+                        </span>
                       </td>
 
                       {/* Client */}
                       <td style={{ padding: "14px 16px", fontSize: "13px", color: "#6B7280" }}>
-                        <Link href={`/klientet/${p.client.id}`} style={{ color: "#6B7280", textDecoration: "none" }}>
-                          {p.client.name}
-                        </Link>
+                        {p.client.name}
                       </td>
 
                       {/* Contract value */}
@@ -240,15 +240,7 @@ export default function BarazimiPage() {
 
                       {/* Collected */}
                       <td style={{ padding: "14px 16px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <span style={{ fontSize: "13px", fontWeight: "600", color: "#16A34A" }}>{fmt(p.totalPaid)}</span>
-                          <Link href={`/projektet/${p.id}?tab=pagesat`} title="Shko tek pagesat" style={{ width: "22px", height: "22px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "5px", opacity: 0.35, transition: "opacity 0.15s" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.35")}
-                          >
-                            <ExternalLink size={12} color="#374151" />
-                          </Link>
-                        </div>
+                        <span style={{ fontSize: "13px", fontWeight: "600", color: "#16A34A" }}>{fmt(p.totalPaid)}</span>
                       </td>
 
                       {/* Remaining */}
