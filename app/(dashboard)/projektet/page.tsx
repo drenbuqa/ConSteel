@@ -16,6 +16,7 @@ interface Project {
   workers: number;
   totalPrice: number;
   totaliShpenzimeve: number;
+  totalPaid: number;
   startDate: string | null;
   endDate: string | null;
 }
@@ -305,7 +306,14 @@ export default function ProjektetPage() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F3F4F6", paddingTop: "10px" }}>
                   <div style={{ fontSize: "12px", color: "#6B7280" }}>{p.client.name}</div>
-                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>{fmt(p.totalPrice)}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {p.totalPrice > 0 && (
+                      p.totalPaid >= p.totalPrice
+                        ? <span style={{ fontSize: "11px", fontWeight: "600", color: "#16A34A", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "6px", padding: "2px 7px" }}>✓ Paguar</span>
+                        : <span style={{ fontSize: "11px", fontWeight: "600", color: "#B45309", background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "6px", padding: "2px 7px" }}>{fmt(p.totalPrice - p.totalPaid)} borxh</span>
+                    )}
+                    <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>{fmt(p.totalPrice)}</div>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -332,7 +340,7 @@ export default function ProjektetPage() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "#F9FAFB", borderBottom: "1px solid #EAECF0" }}>
-                  {["PROJEKTI", "KLIENTI", "PUNËTORË", "VLERA KONTRATËS", "STATUSI", "DATA FILLIMIT"].map((h) => (
+                  {["PROJEKTI", "KLIENTI", "PUNËTORË", "VLERA KONTRATËS", "PAGESAT", "STATUSI", "DATA FILLIMIT"].map((h) => (
                     <th key={h} style={{ padding: "11px 16px", textAlign: "left", fontSize: "11px", fontWeight: "600", color: "#9CA3AF", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
                       {h}
                     </th>
@@ -374,6 +382,13 @@ export default function ProjektetPage() {
                       </td>
                       <td style={{ padding: "14px 16px", fontSize: "13px", fontWeight: "700", color: "#111827" }}>{fmt(p.totalPrice)}</td>
                       <td style={{ padding: "14px 16px" }}>
+                        {p.totalPrice > 0 && (
+                          p.totalPaid >= p.totalPrice
+                            ? <span style={{ fontSize: "11px", fontWeight: "600", color: "#16A34A", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "6px", padding: "3px 8px", whiteSpace: "nowrap" }}>✓ Paguar</span>
+                            : <span style={{ fontSize: "11px", fontWeight: "600", color: "#B45309", background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "6px", padding: "3px 8px", whiteSpace: "nowrap" }}>{fmt(p.totalPrice - p.totalPaid)} borxh</span>
+                        )}
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
                         <StatusBadge status={p.status} />
                         <DeadlineBadge endDate={p.endDate} status={p.status} />
                       </td>
@@ -385,7 +400,7 @@ export default function ProjektetPage() {
                 })}
                 {projects.length === 0 && !showSkeleton && (
                   <tr>
-                    <td colSpan={6} style={{ padding: "80px 24px", textAlign: "center" }}>
+                    <td colSpan={7} style={{ padding: "80px 24px", textAlign: "center" }}>
                       <div style={{ width: "60px", height: "60px", background: "#F3F4F6", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
                         <FolderOpen size={26} color="#9CA3AF" />
                       </div>

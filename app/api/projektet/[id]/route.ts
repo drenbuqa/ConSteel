@@ -19,11 +19,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         client: true,
         reports: { orderBy: { date: "desc" } },
         files: { orderBy: { createdAt: "desc" } },
+        payments: { orderBy: { date: "desc" } },
       },
     });
     if (!project) return notFound();
-    // Strip binary data field before sending — can be megabytes
-    const safe = { ...project, files: project.files.map(({ data: _d, ...f }) => f) };
+    const totalPaid = project.payments.reduce((s, p) => s + p.amount, 0);
+    const safe = { ...project, files: project.files.map(({ data: _d, ...f }) => f), totalPaid };
     return NextResponse.json(safe);
   } catch (error) {
     console.error(error);

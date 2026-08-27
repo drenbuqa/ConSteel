@@ -24,11 +24,20 @@ export async function GET(request: NextRequest) {
 
     const projects = await prisma.project.findMany({
       where,
-      include: { client: true },
+      include: {
+        client: true,
+        payments: { select: { amount: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(projects);
+    const withPaid = projects.map((p) => ({
+      ...p,
+      totalPaid: p.payments.reduce((s, pay) => s + pay.amount, 0),
+      payments: undefined,
+    }));
+
+    return NextResponse.json(withPaid);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 });

@@ -20,6 +20,7 @@ const CLOUDINARY_CLOUD = "drljgepgy";
 const CLOUDINARY_PRESET = "ConSteel_uploads";
 
 interface Report { id: string; title: string; content: string; date: string; }
+interface Payment { id: string; amount: number; date: string; note: string | null; }
 interface Client { id: string; name: string; }
 interface ProjectFile { id: string; url: string; name: string; size: number | null; type: string; ext: string | null; createdAt: string; }
 interface Project {
@@ -30,6 +31,8 @@ interface Project {
   puneShteseTotal: number; totaliShpenzimeve: number; notes: string | null;
   reports: Report[];
   files: ProjectFile[];
+  payments: Payment[];
+  totalPaid: number;
 }
 
 function fmt(n: number) {
@@ -637,7 +640,10 @@ export default function ProjectDetailPage() {
   const { toast } = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
-  const [tab, setTab] = useState<"permbledhje" | "shpenzimet" | "raportet" | "foto" | "dokumente">("permbledhje");
+  const [tab, setTab] = useState<"permbledhje" | "shpenzimet" | "raportet" | "foto" | "dokumente" | "pagesat">("permbledhje");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({ amount: "", date: "", note: "" });
+  const [paymentSaving, setPaymentSaving] = useState(false);
   const [allFiles, setAllFiles] = useState<ProjectFile[]>([]);
   const [loading, setLoading] = useState(true);
   const showSkeleton = useDelayedLoading(loading);
@@ -735,6 +741,26 @@ export default function ProjectDetailPage() {
     toast({ type: "success", message: "Raporti u fshi." });
   };
 
+  const handleAddPayment = async () => {
+    if (!paymentForm.amount || isNaN(Number(paymentForm.amount))) return;
+    setPaymentSaving(true);
+    await fetch(`/api/projektet/${id}/pagesat`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(paymentForm),
+    });
+    setPaymentSaving(false);
+    setShowPaymentModal(false);
+    setPaymentForm({ amount: "", date: "", note: "" });
+    fetchProject();
+    toast({ type: "success", message: "Pagesa u regjistrua." });
+  };
+
+  const handleDeletePayment = async (paymentId: string) => {
+    await fetch(`/api/projektet/${id}/pagesat/${paymentId}`, { method: "DELETE" });
+    fetchProject();
+    toast({ type: "success", message: "Pagesa u fshi." });
+  };
+
   if (loading) return showSkeleton ? <SkeletonProjectDetail /> : null;
   if (!project) return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center" }}>
@@ -762,9 +788,14 @@ export default function ProjectDetailPage() {
   ];
   const maxExpValue = Math.max(...expCategories.map((c) => c.value), 1);
 
+  const totalPaid = project.totalPaid ?? 0;
+  const totalOwed = Math.max(0, project.totalPrice - totalPaid);
+  const paidPct = project.totalPrice > 0 ? Math.min(100, Math.round((totalPaid / project.totalPrice) * 100)) : 0;
+
   const tabs = [
     { key: "permbledhje", label: "Përmbledhje", icon: <Building2 size={14} /> },
     { key: "shpenzimet", label: "Shpenzimet", icon: <Euro size={14} /> },
+    { key: "pagesat", label: "Pagesat", icon: <ReceiptText size={14} /> },
     { key: "raportet", label: "Raportet", icon: <FileText size={14} /> },
     { key: "foto", label: "Foto", icon: <Image size={14} /> },
     { key: "dokumente", label: "Dokumente", icon: <FileText size={14} /> },
@@ -1063,6 +1094,89 @@ export default function ProjectDetailPage() {
         </div>
       )}
 
+      {/* ── TAB: Pagesat ── */}
+      {tab === "pagesat" && (
+        <div>
+          {/* Payment summary card */}
+          <div className="card" style={{ padding: "20px", marginBottom: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+              <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>Gjendja e pagesave</div>
+              <button onClick={() => setShowPaymentModal(true)} className="btn-primary" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", padding: "7px 14px" }}>
+                <Plus size={14} /> Regjistro pagesë
+              </button>
+            </div>
+
+            {/* Progress bar */}
+            <div style={{ marginBottom: "14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                <span style={{ fontSize: "12px", color: "#9CA3AF" }}>Paguar</span>
+                <span style={{ fontSize: "12px", fontWeight: "700", color: "#111827" }}>{paidPct}%</span>
+              </div>
+              <div style={{ height: "8px", background: "#F3F4F6", borderRadius: "99px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${paidPct}%`, background: paidPct >= 100 ? "#16A34A" : "#111827", borderRadius: "99px", transition: "width 0.5s ease" }} />
+              </div>
+            </div>
+
+            {/* Three numbers */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+              {[
+                { label: "Vlera kontratës", value: fmt(project.totalPrice), color: "#111827" },
+                { label: "Paguar", value: fmt(totalPaid), color: "#16A34A" },
+                { label: "Borxh", value: fmt(totalOwed), color: totalOwed > 0 ? "#DC2626" : "#16A34A" },
+              ].map((s) => (
+                <div key={s.label} style={{ background: "#F9FAFB", borderRadius: "10px", padding: "12px 14px" }}>
+                  <div style={{ fontSize: "10px", fontWeight: "600", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>{s.label}</div>
+                  <div style={{ fontSize: "15px", fontWeight: "700", color: s.color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Payment history */}
+          {project.payments.length === 0 ? (
+            <div className="card" style={{ padding: "56px 24px", textAlign: "center" }}>
+              <div style={{ width: "52px", height: "52px", background: "#F3F4F6", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+                <ReceiptText size={22} color="#9CA3AF" />
+              </div>
+              <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka pagesa ende</div>
+              <div style={{ fontSize: "13px", color: "#9CA3AF", marginBottom: "20px", maxWidth: "280px", margin: "0 auto 20px", lineHeight: 1.6 }}>Regjistroni pagesat që klienti ka bërë për këtë projekt.</div>
+              <button onClick={() => setShowPaymentModal(true)} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 20px", background: "#111827", color: "white", border: "none", borderRadius: "9px", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
+                <Plus size={14} /> Regjistro pagesën e parë
+              </button>
+            </div>
+          ) : (
+            <div className="card" style={{ overflow: "hidden" }}>
+              <div style={{ padding: "14px 18px", borderBottom: "1px solid #F3F4F6", fontSize: "13px", fontWeight: "600", color: "#111827" }}>
+                Historiku i pagesave
+                <span style={{ fontSize: "12px", fontWeight: "600", background: "#F3F4F6", color: "#6B7280", padding: "2px 8px", borderRadius: "20px", marginLeft: "8px" }}>{project.payments.length}</span>
+              </div>
+              {project.payments.map((pay, i) => (
+                <div key={pay.id} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 18px", borderBottom: i < project.payments.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "#F0FDF4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <ReceiptText size={16} color="#16A34A" />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "14px", fontWeight: "700", color: "#16A34A" }}>{fmt(pay.amount)}</div>
+                    {pay.note && <div style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pay.note}</div>}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#9CA3AF" }}>
+                      <Calendar size={11} /> {fmtDate(pay.date)}
+                    </div>
+                    <button onClick={() => handleDeletePayment(pay.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── TAB: Raportet ── */}
       {tab === "raportet" && (
         <div>
@@ -1174,6 +1288,41 @@ export default function ProjectDetailPage() {
             <button onClick={handleDelete} className="btn-danger" style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: "140px", justifyContent: "center" }}>
               <Trash2 size={14} /> Fshi projektin
             </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Payment modal */}
+      {showPaymentModal && (
+        <Modal onClose={() => { setShowPaymentModal(false); setPaymentForm({ amount: "", date: "", note: "" }); }} title="Regjistro pagesë">
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Shuma (€) *</label>
+              <div style={{ position: "relative" }}>
+                <Euro size={14} color="#9CA3AF" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+                <input
+                  type="number" inputMode="decimal" min="0"
+                  value={paymentForm.amount}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                  placeholder="p.sh. 50000"
+                  style={{ ...inputStyle, paddingLeft: "36px", boxSizing: "border-box" }}
+                />
+              </div>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Data e pagesës</label>
+              <input type="date" value={paymentForm.date} onChange={(e) => setPaymentForm({ ...paymentForm, date: e.target.value })} style={{ ...inputStyle, boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Shënim (opsional)</label>
+              <input value={paymentForm.note} onChange={(e) => setPaymentForm({ ...paymentForm, note: e.target.value })} placeholder="p.sh. Pagesa e parë, transfertë bankare" style={{ ...inputStyle, boxSizing: "border-box" }} />
+            </div>
+            <div style={{ display: "flex", gap: "10px", paddingTop: "4px" }}>
+              <button onClick={() => { setShowPaymentModal(false); setPaymentForm({ amount: "", date: "", note: "" }); }} className="btn-secondary" style={{ flex: 1 }}>Anulo</button>
+              <button onClick={handleAddPayment} disabled={paymentSaving || !paymentForm.amount} className="btn-primary" style={{ flex: 2, justifyContent: "center", opacity: !paymentForm.amount ? 0.5 : 1 }}>
+                {paymentSaving ? "Duke ruajtur..." : <><Check size={14} /> Regjistro pagesën</>}
+              </button>
+            </div>
           </div>
         </Modal>
       )}

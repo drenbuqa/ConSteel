@@ -11,9 +11,9 @@ import {
   Plus,
   Building2,
   FileText,
-  Briefcase,
   Activity,
   BarChart2,
+  ReceiptText,
 } from "lucide-react";
 import { formatEuro } from "@/lib/utils";
 import DonutChart from "@/components/DonutChart";
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
 
   const [projects, recentReports] = await Promise.all([
     prisma.project.findMany({
-      include: { client: true },
+      include: { client: true, payments: { select: { amount: true } } },
       orderBy: { createdAt: "desc" },
     }),
     prisma.report.findMany({
@@ -42,6 +42,11 @@ export default async function DashboardPage() {
       take: 6,
     }),
   ]);
+
+  const projectsWithPaid = projects.map((p) => ({
+    ...p,
+    totalPaid: p.payments.reduce((s, pay) => s + pay.amount, 0),
+  }));
 
   const activeProjects = projects.filter((p) => p.status === "active");
   const totalValue = projects.reduce((s, p) => s + p.totalPrice, 0);
@@ -59,6 +64,12 @@ export default async function DashboardPage() {
   ];
 
   const displayedProjects = projects.slice(0, 6);
+
+  const unpaidProjects = projectsWithPaid
+    .filter((p) => p.totalPrice > 0 && p.totalPaid < p.totalPrice)
+    .sort((a, b) => (b.totalPrice - b.totalPaid) - (a.totalPrice - a.totalPaid))
+    .slice(0, 5);
+  const totalOutstanding = unpaidProjects.reduce((s, p) => s + (p.totalPrice - p.totalPaid), 0);
 
   const activities = recentReports.map((r) => ({
     title: r.title,
@@ -431,6 +442,50 @@ export default async function DashboardPage() {
         )}
 
       </div>
+
+      {/* ── Outstanding Payments Section ── */}
+      {unpaidProjects.length > 0 && (
+        <div className="card" style={{ overflow: "hidden", marginBottom: "24px" }}>
+          <div style={{ padding: "18px 20px", borderBottom: "1px solid #EAECF0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{ width: "32px", height: "32px", background: "#FFFBEB", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <ReceiptText size={16} color="#B45309" />
+              </div>
+              <div>
+                <div style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}>Pagesat e papaguara</div>
+                <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "1px" }}>Gjithsej: {formatEuro(totalOutstanding)} borxh</div>
+              </div>
+            </div>
+            <ViewAllButton href="/projektet" label="Shiko projektet" icon={<ReceiptText size={13} />} />
+          </div>
+          <div>
+            {unpaidProjects.map((p, i) => {
+              const owed = p.totalPrice - p.totalPaid;
+              const pct = Math.round((p.totalPaid / p.totalPrice) * 100);
+              const isLast = i === unpaidProjects.length - 1;
+              return (
+                <Link key={p.id} href={`/projektet/${p.id}?tab=pagesat`} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 20px", borderBottom: isLast ? "none" : "1px solid #F3F4F6", textDecoration: "none" }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
+                      <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "12px" }}>{p.name}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                        <span style={{ fontSize: "11px", color: "#9CA3AF" }}>{p.client.name}</span>
+                        <span style={{ fontSize: "13px", fontWeight: "700", color: "#B45309" }}>{formatEuro(owed)}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={{ flex: 1, height: "4px", background: "#F3F4F6", borderRadius: "2px", overflow: "hidden" }}>
+                        <div style={{ width: `${pct}%`, height: "100%", background: pct === 0 ? "#E5E7EB" : "#16A34A", borderRadius: "2px" }} />
+                      </div>
+                      <span style={{ fontSize: "11px", color: "#9CA3AF", flexShrink: 0 }}>{pct}% paguar</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
     </PageTransition>
     </>
