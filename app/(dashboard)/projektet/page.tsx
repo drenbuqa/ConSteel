@@ -21,34 +21,6 @@ interface Project {
   endDate: string | null;
 }
 
-function DeadlineBadge({ endDate, status }: { endDate: string | null; status: string }) {
-  if (!endDate || status === "completed") return null;
-  const now = new Date();
-  const end = new Date(endDate);
-  const diffDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays < 0) return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", gap: "4px",
-      padding: "2px 8px", borderRadius: "20px",
-      background: "#FEF2F2", border: "1px solid #FECACA",
-      fontSize: "11px", fontWeight: "600", color: "#DC2626", marginLeft: "6px",
-    }}>
-      ⚠ Vonuar
-    </span>
-  );
-  if (diffDays <= 7) return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", gap: "4px",
-      padding: "2px 8px", borderRadius: "20px",
-      background: "#FFFBEB", border: "1px solid #FDE68A",
-      fontSize: "11px", fontWeight: "600", color: "#D97706", marginLeft: "6px",
-    }}>
-      ⏱ {diffDays}d
-    </span>
-  );
-  return null;
-}
-
 function fmt(n: number) {
   return new Intl.NumberFormat("de-DE", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n) + " €";
 }
@@ -299,9 +271,8 @@ export default function ProjektetPage() {
                       </div>
                     )}
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px", flexShrink: 0 }}>
+                  <div style={{ flexShrink: 0 }}>
                     <StatusBadge status={p.status} />
-                    <DeadlineBadge endDate={p.endDate} status={p.status} />
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F3F4F6", paddingTop: "10px" }}>
@@ -390,7 +361,6 @@ export default function ProjektetPage() {
                       </td>
                       <td style={{ padding: "14px 16px" }}>
                         <StatusBadge status={p.status} />
-                        <DeadlineBadge endDate={p.endDate} status={p.status} />
                       </td>
                       <td style={{ padding: "14px 16px", fontSize: "13px", color: "#9CA3AF" }}>
                         {p.startDate ? new Date(p.startDate).toLocaleDateString("sq-AL", { day: "numeric", month: "long", year: "numeric" }) : "—"}
