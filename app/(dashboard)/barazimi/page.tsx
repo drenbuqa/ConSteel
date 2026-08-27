@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Clock, AlertCircle, TrendingUp, Edit2, Check, X, Info } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, TrendingUp, ExternalLink } from "lucide-react";
 import { useDelayedLoading } from "@/components/Skeleton";
 import PageTransition from "@/components/PageTransition";
 
@@ -11,7 +11,7 @@ interface Project {
   name: string;
   status: string;
   totalPrice: number;
-  totaliBarazimit: number;
+  totalPaid: number;
   client: { id: string; name: string };
 }
 
@@ -45,11 +45,6 @@ export default function BarazimiPage() {
   const [loading, setLoading] = useState(true);
   const showSkeleton = useDelayedLoading(loading);
 
-  // Inline edit state
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
-  const [saving, setSaving] = useState(false);
-
   useEffect(() => {
     fetch("/api/projektet")
       .then((r) => r.json())
@@ -57,32 +52,8 @@ export default function BarazimiPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const startEdit = (p: Project) => {
-    setEditingId(p.id);
-    setEditValue(String(p.totaliBarazimit || 0));
-  };
-
-  const cancelEdit = () => { setEditingId(null); setEditValue(""); };
-
-  const saveEdit = async (id: string) => {
-    setSaving(true);
-    const res = await fetch(`/api/projektet/${id}/pagesa`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ totaliBarazimit: parseFloat(editValue) || 0 }),
-    });
-    if (res.ok) {
-      setProjects((prev) =>
-        prev.map((p) => p.id === id ? { ...p, totaliBarazimit: parseFloat(editValue) || 0 } : p)
-      );
-    }
-    setSaving(false);
-    setEditingId(null);
-    setEditValue("");
-  };
-
   const totalPrice    = projects.reduce((s, p) => s + p.totalPrice, 0);
-  const totalReceived = projects.reduce((s, p) => s + p.totaliBarazimit, 0);
+  const totalReceived = projects.reduce((s, p) => s + p.totalPaid, 0);
   const totalPending  = totalPrice - totalReceived;
   const overallPct    = totalPrice > 0 ? (totalReceived / totalPrice) * 100 : 0;
 
@@ -118,13 +89,6 @@ export default function BarazimiPage() {
         </div>
       </div>
 
-      {/* Explanation banner */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px 16px", background: "#F8FAFF", border: "1px solid #E0E7FF", borderRadius: "10px", marginBottom: "20px" }}>
-        <Info size={15} color="#6366F1" style={{ flexShrink: 0, marginTop: "1px" }} />
-        <p style={{ margin: 0, fontSize: "13px", color: "#4B5563", lineHeight: 1.6 }}>
-          Për çdo projekt, klikoni <strong>ikonën e lapsit</strong> pranë shumës së mbledhur për ta përditësuar. Shuma e mbledhur është ajo që klienti ka paguar deri tani.
-        </p>
-      </div>
 
       {/* 3 summary cards */}
       <div className="bar-sum-grid" style={{ marginBottom: "24px" }}>
@@ -167,9 +131,8 @@ export default function BarazimiPage() {
       {/* Mobile cards */}
       <div className="bar-mobile-cards">
         {projects.map((p) => {
-          const remaining = Math.max(p.totalPrice - p.totaliBarazimit, 0);
-          const pct = p.totalPrice > 0 ? (p.totaliBarazimit / p.totalPrice) * 100 : 0;
-          const isEditing = editingId === p.id;
+          const remaining = Math.max(p.totalPrice - p.totalPaid, 0);
+          const pct = p.totalPrice > 0 ? (p.totalPaid / p.totalPrice) * 100 : 0;
           return (
             <div key={p.id} className="card" style={{ padding: "14px 16px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
@@ -187,35 +150,18 @@ export default function BarazimiPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F3F4F6", paddingTop: "10px" }}>
                 <div>
                   <div style={{ fontSize: "11px", color: "#9CA3AF", marginBottom: "2px" }}>Mbledhur</div>
-                  {isEditing ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <input
-                        type="number" value={editValue} onChange={(e) => setEditValue(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") saveEdit(p.id); if (e.key === "Escape") cancelEdit(); }}
-                        autoFocus
-                        style={{ width: "90px", padding: "5px 8px", border: "1.5px solid #111827", borderRadius: "7px", fontSize: "13px", fontFamily: "Inter, sans-serif", outline: "none" }}
-                      />
-                      <button onClick={() => saveEdit(p.id)} disabled={saving} style={{ width: "28px", height: "28px", background: "#111827", border: "none", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                        <Check size={13} color="white" />
-                      </button>
-                      <button onClick={cancelEdit} style={{ width: "28px", height: "28px", background: "#F3F4F6", border: "none", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                        <X size={13} color="#6B7280" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "14px", fontWeight: "700", color: "#16A34A" }}>{fmt(p.totaliBarazimit)}</span>
-                      <button onClick={() => startEdit(p)} style={{ width: "28px", height: "28px", background: "#F3F4F6", border: "none", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                        <Edit2 size={13} color="#374151" />
-                      </button>
-                    </div>
-                  )}
+                  <span style={{ fontSize: "14px", fontWeight: "700", color: "#16A34A" }}>{fmt(p.totalPaid)}</span>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "11px", color: "#9CA3AF", marginBottom: "2px" }}>Mbetur</div>
-                  <div style={{ fontSize: "14px", fontWeight: "700", color: remaining > 0 ? "#D97706" : "#16A34A" }}>
-                    {remaining > 0 ? fmt(remaining) : "Paguar ✓"}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: "11px", color: "#9CA3AF", marginBottom: "2px" }}>Mbetur</div>
+                    <div style={{ fontSize: "14px", fontWeight: "700", color: remaining > 0 ? "#D97706" : "#16A34A" }}>
+                      {remaining > 0 ? fmt(remaining) : "Paguar ✓"}
+                    </div>
                   </div>
+                  <Link href={`/projektet/${p.id}?tab=pagesat`} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "32px", height: "32px", background: "#F3F4F6", borderRadius: "8px", flexShrink: 0 }}>
+                    <ExternalLink size={14} color="#374151" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -228,9 +174,9 @@ export default function BarazimiPage() {
         <div style={{ padding: "18px 24px", borderBottom: "1px solid #EAECF0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}>Gjendja e pagesave sipas projektit</div>
-            <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>Klikoni lapsin për të përditësuar shumën e mbledhur</div>
+            <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>Shtoni pagesa nga skeda Pagesat brenda çdo projekti</div>
           </div>
-          {projects.some(p => p.totaliBarazimit < p.totalPrice && p.status !== "pending") && (
+          {projects.some(p => p.totalPaid < p.totalPrice && p.status !== "pending") && (
             <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", color: "#D97706", fontWeight: "500" }}>
               <AlertCircle size={13} /> Ka projekte me pagesa të papërfunduara
             </div>
@@ -264,9 +210,8 @@ export default function BarazimiPage() {
               </thead>
               <tbody>
                 {projects.map((p, i) => {
-                  const remaining = Math.max(p.totalPrice - p.totaliBarazimit, 0);
-                  const pct = p.totalPrice > 0 ? (p.totaliBarazimit / p.totalPrice) * 100 : 0;
-                  const isEditing = editingId === p.id;
+                  const remaining = Math.max(p.totalPrice - p.totalPaid, 0);
+                  const pct = p.totalPrice > 0 ? (p.totalPaid / p.totalPrice) * 100 : 0;
                   const isLast = i === projects.length - 1;
 
                   return (
@@ -296,49 +241,17 @@ export default function BarazimiPage() {
                         {fmt(p.totalPrice)}
                       </td>
 
-                      {/* Collected — editable */}
+                      {/* Collected */}
                       <td style={{ padding: "14px 16px" }}>
-                        {isEditing ? (
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <input
-                              type="number"
-                              value={editValue}
-                              onChange={(e) => setEditValue(e.target.value)}
-                              onKeyDown={(e) => { if (e.key === "Enter") saveEdit(p.id); if (e.key === "Escape") cancelEdit(); }}
-                              autoFocus
-                              style={{ width: "110px", padding: "6px 9px", border: "1.5px solid #111827", borderRadius: "7px", fontSize: "13px", fontFamily: "Inter, sans-serif", outline: "none", MozAppearance: "textfield", WebkitAppearance: "none" } as React.CSSProperties}
-                              className="no-spinner"
-                            />
-                            <button
-                              onClick={() => saveEdit(p.id)}
-                              disabled={saving}
-                              style={{ width: "28px", height: "28px", background: "#111827", border: "none", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-                            >
-                              <Check size={13} color="white" />
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              style={{ width: "28px", height: "28px", background: "#F3F4F6", border: "none", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-                            >
-                              <X size={13} color="#6B7280" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-                            <span style={{ fontSize: "13px", fontWeight: "600", color: "#16A34A" }}>
-                              {fmt(p.totaliBarazimit)}
-                            </span>
-                            <button
-                              onClick={() => startEdit(p)}
-                              title="Ndrysho shumën e mbledhur"
-                              style={{ width: "24px", height: "24px", background: "transparent", border: "none", borderRadius: "5px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: 0.4, transition: "opacity 0.15s, background 0.15s" }}
-                              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; (e.currentTarget as HTMLButtonElement).style.background = "#F3F4F6"; }}
-                              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.4"; (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
-                            >
-                              <Edit2 size={12} color="#374151" />
-                            </button>
-                          </div>
-                        )}
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "13px", fontWeight: "600", color: "#16A34A" }}>{fmt(p.totalPaid)}</span>
+                          <Link href={`/projektet/${p.id}?tab=pagesat`} title="Shko tek pagesat" style={{ width: "22px", height: "22px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "5px", opacity: 0.35, transition: "opacity 0.15s" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.35")}
+                          >
+                            <ExternalLink size={12} color="#374151" />
+                          </Link>
+                        </div>
                       </td>
 
                       {/* Remaining */}
