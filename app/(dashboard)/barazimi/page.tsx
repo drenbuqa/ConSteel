@@ -67,6 +67,9 @@ export default function BarazimiPage() {
         .bar-mobile-cards  { display: flex !important; }
       }
       .bar-mobile-cards { display: none; flex-direction: column; gap: 10px; }
+      .bar-row { transition: background 0.13s, box-shadow 0.13s; }
+      .bar-row:hover { background: #F9FAFB !important; box-shadow: inset 3px 0 0 #111827; }
+      .bar-row:hover .bar-proj-name { text-decoration: underline; text-decoration-color: #9CA3AF; text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
     `}</style>
     <PageTransition>
     {showSkeleton ? (
@@ -215,23 +218,17 @@ export default function BarazimiPage() {
                   const isLast = i === projects.length - 1;
 
                   return (
-                    <tr key={p.id} style={{ borderBottom: isLast ? "none" : "1px solid #F3F4F6" }}>
+                    <tr key={p.id} className="bar-row" style={{ borderBottom: isLast ? "none" : "1px solid #F3F4F6" }}>
                       {/* Project */}
                       <td style={{ padding: "14px 16px" }}>
-                        <Link href={`/projektet/${p.id}`} style={{ fontSize: "14px", fontWeight: "600", color: "#111827", textDecoration: "none" }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "underline"; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "none"; }}
-                        >
+                        <Link href={`/projektet/${p.id}`} className="bar-proj-name" style={{ fontSize: "14px", fontWeight: "600", color: "#111827", textDecoration: "none" }}>
                           {p.name}
                         </Link>
                       </td>
 
                       {/* Client */}
                       <td style={{ padding: "14px 16px", fontSize: "13px", color: "#6B7280" }}>
-                        <Link href={`/klientet/${p.client.id}`} style={{ color: "#6B7280", textDecoration: "none" }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "underline"; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "none"; }}
-                        >
+                        <Link href={`/klientet/${p.client.id}`} style={{ color: "#6B7280", textDecoration: "none" }}>
                           {p.client.name}
                         </Link>
                       </td>
