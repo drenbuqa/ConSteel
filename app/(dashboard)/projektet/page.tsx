@@ -306,11 +306,11 @@ export default function ProjektetPage() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F3F4F6", paddingTop: "10px" }}>
                   <div style={{ fontSize: "12px", color: "#6B7280" }}>{p.client.name}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     {p.totalPrice > 0 && (
                       p.totalPaid >= p.totalPrice
-                        ? <span style={{ fontSize: "11px", fontWeight: "600", color: "#16A34A", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "6px", padding: "2px 7px" }}>✓ Paguar</span>
-                        : <span style={{ fontSize: "11px", fontWeight: "600", color: "#B45309", background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "6px", padding: "2px 7px" }}>{fmt(p.totalPrice - p.totalPaid)} borxh</span>
+                        ? <span style={{ fontSize: "11px", fontWeight: "600", color: "#16A34A" }}>✓ Paguar</span>
+                        : <span style={{ fontSize: "11px", fontWeight: "600", color: "#B45309" }}>{fmt(p.totalPrice - p.totalPaid)} borxh</span>
                     )}
                     <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>{fmt(p.totalPrice)}</div>
                   </div>
@@ -384,8 +384,8 @@ export default function ProjektetPage() {
                       <td style={{ padding: "14px 16px" }}>
                         {p.totalPrice > 0 && (
                           p.totalPaid >= p.totalPrice
-                            ? <span style={{ fontSize: "11px", fontWeight: "600", color: "#16A34A", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "6px", padding: "3px 8px", whiteSpace: "nowrap" }}>✓ Paguar</span>
-                            : <span style={{ fontSize: "11px", fontWeight: "600", color: "#B45309", background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "6px", padding: "3px 8px", whiteSpace: "nowrap" }}>{fmt(p.totalPrice - p.totalPaid)} borxh</span>
+                            ? <span style={{ fontSize: "12px", fontWeight: "600", color: "#16A34A" }}>✓ Paguar</span>
+                            : <span style={{ fontSize: "12px", fontWeight: "600", color: "#B45309" }}>{fmt(p.totalPrice - p.totalPaid)} borxh</span>
                         )}
                       </td>
                       <td style={{ padding: "14px 16px" }}>

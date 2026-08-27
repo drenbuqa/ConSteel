@@ -644,6 +644,7 @@ export default function ProjectDetailPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ amount: "", date: new Date().toISOString().split("T")[0], note: "" });
   const [paymentSaving, setPaymentSaving] = useState(false);
+  const [confirmPaymentId, setConfirmPaymentId] = useState<string | null>(null);
   const [allFiles, setAllFiles] = useState<ProjectFile[]>([]);
   const [loading, setLoading] = useState(true);
   const showSkeleton = useDelayedLoading(loading);
@@ -1167,7 +1168,7 @@ export default function ProjectDetailPage() {
                     <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#9CA3AF" }}>
                       <Calendar size={11} /> {fmtDate(pay.date)}
                     </div>
-                    <button onClick={() => handleDeletePayment(pay.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
+                    <button onClick={() => setConfirmPaymentId(pay.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
                       onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
                     >
@@ -1294,6 +1295,15 @@ export default function ProjectDetailPage() {
             </button>
           </div>
         </Modal>
+      )}
+
+      {/* Payment delete confirm */}
+      {confirmPaymentId && (
+        <DeleteConfirmModal
+          label="Fshi pagesën?"
+          onConfirm={() => { handleDeletePayment(confirmPaymentId); setConfirmPaymentId(null); }}
+          onCancel={() => setConfirmPaymentId(null)}
+        />
       )}
 
       {/* Payment modal */}

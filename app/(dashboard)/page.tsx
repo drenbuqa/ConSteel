@@ -88,6 +88,8 @@ export default async function DashboardPage() {
       .dash-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
       .dash-main-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
       .dash-act-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .unpaid-row { transition: background 0.13s; }
+      .unpaid-row:hover { background: #F9FAFB; }
       @media (max-width: 1024px) {
         .dash-stat-grid { grid-template-columns: repeat(2, 1fr); }
         .dash-main-grid { grid-template-columns: 1fr; }
@@ -464,7 +466,7 @@ export default async function DashboardPage() {
               const pct = Math.round((p.totalPaid / p.totalPrice) * 100);
               const isLast = i === unpaidProjects.length - 1;
               return (
-                <Link key={p.id} href={`/projektet/${p.id}?tab=pagesat`} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 20px", borderBottom: isLast ? "none" : "1px solid #F3F4F6", textDecoration: "none" }}>
+                <Link key={p.id} href={`/projektet/${p.id}?tab=pagesat`} className="unpaid-row" style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 20px", borderBottom: isLast ? "none" : "1px solid #F3F4F6", textDecoration: "none" }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
                       <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "12px" }}>{p.name}</div>
