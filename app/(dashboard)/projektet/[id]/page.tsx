@@ -1110,28 +1110,35 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
+              {/* Header */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 110px 40px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
+                {["Shpenzimi", "Data", "Shuma", ""].map((h, i) => (
+                  <span key={i} style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: i === 2 ? "right" : "left" }}>{h}</span>
+                ))}
+              </div>
               {expenses.map((exp, i) => (
-                <div key={exp.id} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 18px", borderBottom: i < expenses.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                  <div style={{ minWidth: "72px", height: "44px", borderRadius: "10px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: "0 10px" }}>
-                    <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>{fmt(exp.amount)}</span>
+                <div key={exp.id} style={{ display: "grid", gridTemplateColumns: "1fr 140px 110px 40px", alignItems: "center", padding: "11px 18px", borderBottom: i < expenses.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.name}</div>
+                    {exp.note && <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "1px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.note}</div>}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.name}</div>
-                    <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px", display: "flex", alignItems: "center", gap: "4px" }}>
-                      <Calendar size={11} />{fmtDate(exp.date)}{exp.note ? ` · ${exp.note}` : ""}
-                    </div>
+                  <div style={{ fontSize: "12px", color: "#6B7280", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Calendar size={11} color="#9CA3AF" />{fmtDate(exp.date)}
                   </div>
-                  <button onClick={() => setConfirmExpenseId(exp.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex", flexShrink: 0 }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmt(exp.amount)}</div>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <button onClick={() => setConfirmExpenseId(exp.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
+                    ><Trash2 size={14} /></button>
+                  </div>
                 </div>
               ))}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 18px", borderTop: "2px solid #F3F4F6", background: "#F9FAFB" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 110px 40px", alignItems: "center", padding: "10px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
-                <span style={{ fontSize: "15px", fontWeight: "800", color: "#111827" }}>{fmt(totalExp)}</span>
+                <span />
+                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmt(totalExp)}</span>
+                <span />
               </div>
             </div>
           )}
@@ -1164,29 +1171,32 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
+              {/* Header */}
+              <div style={{ display: "grid", gridTemplateColumns: "160px 1fr 80px 40px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
+                {["Data", "Shënim", "Punëtorë", ""].map((h, i) => (
+                  <span key={i} style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: i === 2 ? "right" : "left" }}>{h}</span>
+                ))}
+              </div>
               {workerLogs.map((log, i) => (
-                <div key={log.id} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 18px", borderBottom: i < workerLogs.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                  <div style={{ width: "48px", height: "48px", borderRadius: "10px", background: "#111827", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <span style={{ fontSize: "17px", fontWeight: "800", color: "white", lineHeight: 1 }}>{log.count}</span>
-                    <span style={{ fontSize: "9px", fontWeight: "600", color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.04em", marginTop: "2px" }}>punëtorë</span>
+                <div key={log.id} style={{ display: "grid", gridTemplateColumns: "160px 1fr 80px 40px", alignItems: "center", padding: "11px 18px", borderBottom: i < workerLogs.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                  <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Calendar size={11} color="#9CA3AF" />{fmtDate(log.date)}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", display: "flex", alignItems: "center", gap: "4px" }}>
-                      <Calendar size={12} color="#9CA3AF" />{fmtDate(log.date)}
-                    </div>
-                    {log.note && <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{log.note}</div>}
+                  <div style={{ fontSize: "12px", color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{log.note || <span style={{ color: "#D1D5DB" }}>—</span>}</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{log.count}</div>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <button onClick={() => setConfirmWorkerId(log.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
+                    ><Trash2 size={14} /></button>
                   </div>
-                  <button onClick={() => setConfirmWorkerId(log.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex", flexShrink: 0 }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
-                  >
-                    <Trash2 size={14} />
-                  </button>
                 </div>
               ))}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 18px", borderTop: "2px solid #F3F4F6", background: "#F9FAFB" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "160px 1fr 80px 40px", alignItems: "center", padding: "10px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
-                <span style={{ fontSize: "15px", fontWeight: "800", color: "#111827" }}>{totalWorkerDays} ditë-punëtor</span>
+                <span />
+                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{totalWorkerDays}</span>
+                <span />
               </div>
             </div>
           )}
@@ -1245,29 +1255,28 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
-              <div style={{ padding: "14px 18px", borderBottom: "1px solid #F3F4F6", fontSize: "13px", fontWeight: "600", color: "#111827" }}>
+              <div style={{ padding: "12px 18px", borderBottom: "1px solid #F3F4F6", fontSize: "13px", fontWeight: "600", color: "#111827" }}>
                 Historiku i pagesave
                 <span style={{ fontSize: "12px", fontWeight: "600", background: "#F3F4F6", color: "#6B7280", padding: "2px 8px", borderRadius: "20px", marginLeft: "8px" }}>{project.payments.length}</span>
               </div>
+              {/* Header */}
+              <div style={{ display: "grid", gridTemplateColumns: "120px 140px 1fr 40px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
+                {["Shuma", "Data", "Shënim", ""].map((h, i) => (
+                  <span key={i} style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</span>
+                ))}
+              </div>
               {project.payments.map((pay, i) => (
-                <div key={pay.id} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 18px", borderBottom: i < project.payments.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                  <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "#F0FDF4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <ReceiptText size={16} color="#16A34A" />
+                <div key={pay.id} style={{ display: "grid", gridTemplateColumns: "120px 140px 1fr 40px", alignItems: "center", padding: "11px 18px", borderBottom: i < project.payments.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#16A34A", fontVariantNumeric: "tabular-nums" }}>{fmt(pay.amount)}</div>
+                  <div style={{ fontSize: "12px", color: "#6B7280", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Calendar size={11} color="#9CA3AF" />{fmtDate(pay.date)}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "14px", fontWeight: "700", color: "#16A34A" }}>{fmt(pay.amount)}</div>
-                    {pay.note && <div style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pay.note}</div>}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#9CA3AF" }}>
-                      <Calendar size={11} /> {fmtDate(pay.date)}
-                    </div>
+                  <div style={{ fontSize: "12px", color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pay.note || <span style={{ color: "#D1D5DB" }}>—</span>}</div>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <button onClick={() => setConfirmPaymentId(pay.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
                       onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    ><Trash2 size={14} /></button>
                   </div>
                 </div>
               ))}
