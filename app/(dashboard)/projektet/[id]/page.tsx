@@ -886,9 +886,11 @@ export default function ProjectDetailPage() {
                   <MapPin size={13} color="#9CA3AF" /><span>{project.location}</span>
                 </div>
               )}
-              <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#6B7280" }}>
-                <Users size={13} color="#9CA3AF" /><span>{totalWorkerDays} ditë-punëtor</span>
-              </div>
+              {totalWorkerDays > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#6B7280" }}>
+                  <Users size={13} color="#9CA3AF" /><span>{totalWorkerDays} ditë-punëtor</span>
+                </div>
+              )}
               {project.startDate && (
                 <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#6B7280" }}>
                   <Calendar size={13} color="#9CA3AF" />
@@ -936,9 +938,11 @@ export default function ProjectDetailPage() {
                   <MapPin size={10} color="#9CA3AF" />{project.location}
                 </span>
               )}
-              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
-                <Users size={10} color="#9CA3AF" />{totalWorkerDays} ditë-punëtor
-              </span>
+              {totalWorkerDays > 0 && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
+                  <Users size={10} color="#9CA3AF" />{totalWorkerDays} ditë-punëtor
+                </span>
+              )}
               {project.startDate && (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
                   <Calendar size={10} color="#9CA3AF" />{fmtDate(project.startDate)}
@@ -1106,24 +1110,19 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
-              {/* Table header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px 120px 36px", gap: "8px", padding: "10px 16px", borderBottom: "1px solid #F3F4F6", background: "#F9FAFB" }}>
-                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>Shpenzimi</span>
-                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>Data</span>
-                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Shuma</span>
-                <span />
-              </div>
               {expenses.map((exp, i) => (
-                <div key={exp.id} style={{ display: "grid", gridTemplateColumns: "1fr 120px 120px 36px", gap: "8px", alignItems: "center", padding: "12px 16px", borderBottom: i < expenses.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                  <div>
-                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>{exp.name}</div>
-                    {exp.note && <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.note}</div>}
+                <div key={exp.id} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 18px", borderBottom: i < expenses.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Euro size={16} color="#6B7280" />
                   </div>
-                  <div style={{ fontSize: "12px", color: "#6B7280", display: "flex", alignItems: "center", gap: "4px" }}>
-                    <Calendar size={11} /> {fmtDate(exp.date)}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.name}</div>
+                    <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px", display: "flex", alignItems: "center", gap: "4px" }}>
+                      <Calendar size={11} />{fmtDate(exp.date)}{exp.note ? ` · ${exp.note}` : ""}
+                    </div>
                   </div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", textAlign: "right" }}>{fmt(exp.amount)}</div>
-                  <button onClick={() => setConfirmExpenseId(exp.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
+                  <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", flexShrink: 0 }}>{fmt(exp.amount)}</div>
+                  <button onClick={() => setConfirmExpenseId(exp.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex", flexShrink: 0 }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
                     onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
                   >
@@ -1131,12 +1130,9 @@ export default function ProjectDetailPage() {
                   </button>
                 </div>
               ))}
-              {/* Total row */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px 120px 36px", gap: "8px", alignItems: "center", padding: "12px 16px", borderTop: "2px solid #F3F4F6", background: "#F9FAFB" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 18px", borderTop: "2px solid #F3F4F6", background: "#F9FAFB" }}>
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
-                <span />
-                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", textAlign: "right" }}>{fmt(totalExp)}</span>
-                <span />
+                <span style={{ fontSize: "15px", fontWeight: "800", color: "#111827" }}>{fmt(totalExp)}</span>
               </div>
             </div>
           )}
@@ -1146,19 +1142,6 @@ export default function ProjectDetailPage() {
       {/* ── TAB: Punëtorët ── */}
       {tab === "punetore" && (
         <div>
-          {/* Summary */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
-            {[
-              { label: "Total ditë-punëtor", value: String(totalWorkerDays) },
-              { label: "Regjistrime", value: String(workerLogs.length) },
-            ].map((s) => (
-              <div key={s.label} className="card" style={{ padding: "14px 16px" }}>
-                <div style={{ fontSize: "10px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "6px" }}>{s.label}</div>
-                <div style={{ fontSize: "22px", fontWeight: "800", color: "#111827", fontVariantNumeric: "tabular-nums" }}>{s.value}</div>
-              </div>
-            ))}
-          </div>
-
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827" }}>
               Prezenca ditore
@@ -1177,25 +1160,27 @@ export default function ProjectDetailPage() {
               <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka regjistrime ende</div>
               <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "280px", margin: "0 auto 20px", lineHeight: 1.6 }}>Regjistroni çdo ditë numrin e punëtorëve të pranishëm në kantier.</div>
               <button onClick={() => setShowWorkerModal(true)} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 20px", background: "#111827", color: "white", border: "none", borderRadius: "9px", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
-                <Plus size={14} /> Regjistro ditën e parë
+                <Plus size={14} /> Regjistro prezencën
               </button>
             </div>
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "140px 1fr 80px 36px", gap: "8px", padding: "10px 16px", borderBottom: "1px solid #F3F4F6", background: "#F9FAFB" }}>
-                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>Data</span>
-                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>Shënim</span>
-                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Punëtorë</span>
-                <span />
-              </div>
               {workerLogs.map((log, i) => (
-                <div key={log.id} style={{ display: "grid", gridTemplateColumns: "140px 1fr 80px 36px", gap: "8px", alignItems: "center", padding: "12px 16px", borderBottom: i < workerLogs.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                  <div style={{ fontSize: "12px", color: "#374151", fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
-                    <Calendar size={11} color="#9CA3AF" /> {fmtDate(log.date)}
+                <div key={log.id} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 18px", borderBottom: i < workerLogs.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Users size={16} color="#6B7280" />
                   </div>
-                  <div style={{ fontSize: "12px", color: "#9CA3AF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{log.note || "—"}</div>
-                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827", textAlign: "right" }}>{log.count}</div>
-                  <button onClick={() => setConfirmWorkerId(log.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", display: "flex", alignItems: "center", gap: "4px" }}>
+                      <Calendar size={12} color="#9CA3AF" />{fmtDate(log.date)}
+                    </div>
+                    {log.note && <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{log.note}</div>}
+                  </div>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ fontSize: "18px", fontWeight: "800", color: "#111827", lineHeight: 1 }}>{log.count}</div>
+                    <div style={{ fontSize: "10px", color: "#9CA3AF", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.04em", marginTop: "2px" }}>punëtorë</div>
+                  </div>
+                  <button onClick={() => setConfirmWorkerId(log.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex", flexShrink: 0 }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
                     onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
                   >
@@ -1203,6 +1188,10 @@ export default function ProjectDetailPage() {
                   </button>
                 </div>
               ))}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 18px", borderTop: "2px solid #F3F4F6", background: "#F9FAFB" }}>
+                <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
+                <span style={{ fontSize: "15px", fontWeight: "800", color: "#111827" }}>{totalWorkerDays} ditë-punëtor</span>
+              </div>
             </div>
           )}
         </div>
