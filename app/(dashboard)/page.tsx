@@ -31,7 +31,7 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const [projects, recentReports] = await Promise.all([
+  const [projects, recentReports, expensesAgg] = await Promise.all([
     prisma.project.findMany({
       include: { client: true, payments: { select: { amount: true } } },
       orderBy: { createdAt: "desc" },
@@ -41,6 +41,7 @@ export default async function DashboardPage() {
       orderBy: { date: "desc" },
       take: 6,
     }),
+    prisma.expense.aggregate({ _sum: { amount: true } }),
   ]);
 
   const projectsWithPaid = projects.map((p) => ({
@@ -50,7 +51,7 @@ export default async function DashboardPage() {
 
   const activeProjects = projects.filter((p) => p.status === "active");
   const totalValue = projects.reduce((s, p) => s + p.totalPrice, 0);
-  const totalExpenses = projects.reduce((s, p) => s + p.totaliShpenzimeve, 0);
+  const totalExpenses = expensesAgg._sum.amount ?? 0;
   const totalProfit = totalValue - totalExpenses;
 
   const expPct  = totalValue > 0 ? Math.round((totalExpenses / totalValue) * 100) : 0;

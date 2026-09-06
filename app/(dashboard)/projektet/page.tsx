@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { Plus, Search, MapPin, Users, FolderOpen, CheckCircle2, Clock, Archive, ChevronDown, X } from "lucide-react";
+import { Plus, Search, MapPin, FolderOpen, CheckCircle2, Clock, Archive, ChevronDown, X } from "lucide-react";
 import { SkeletonTable, SkeletonProjectCards, useDelayedLoading } from "@/components/Skeleton";
 import SearchBar from "@/components/SearchBar";
 import PageTransition from "@/components/PageTransition";
@@ -13,9 +13,7 @@ interface Project {
   location: string | null;
   client: { name: string };
   status: string;
-  workers: number;
   totalPrice: number;
-  totaliShpenzimeve: number;
   totalPaid: number;
   startDate: string | null;
   endDate: string | null;
@@ -258,7 +256,7 @@ export default function ProjektetPage() {
           showSkeleton ? <SkeletonProjectCards count={5} /> : null
         ) : null}
         {!loading && projects.map((p) => {
-          const remaining = Math.max(p.totalPrice - p.totaliShpenzimeve, 0);
+          const remaining = Math.max(p.totalPrice - p.totalPaid, 0);
           return (
             <Link key={p.id} href={`/projektet/${p.id}`} style={{ textDecoration: "none" }}>
               <div className="card" style={{ padding: "14px 16px" }}>
@@ -311,7 +309,7 @@ export default function ProjektetPage() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "#F9FAFB", borderBottom: "1px solid #EAECF0" }}>
-                  {["PROJEKTI", "KLIENTI", "PUNËTORË", "VLERA KONTRATËS", "PAGESAT", "STATUSI", "DATA FILLIMIT"].map((h) => (
+                  {["PROJEKTI", "KLIENTI", "VLERA KONTRATËS", "PAGESAT", "STATUSI", "DATA FILLIMIT"].map((h) => (
                     <th key={h} style={{ padding: "11px 16px", textAlign: "left", fontSize: "11px", fontWeight: "600", color: "#9CA3AF", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
                       {h}
                     </th>
@@ -345,12 +343,6 @@ export default function ProjektetPage() {
                         )}
                       </td>
                       <td style={{ padding: "14px 16px", fontSize: "13px", color: "#374151", fontWeight: "500" }}>{p.client.name}</td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#374151" }}>
-                          <Users size={13} color="#9CA3AF" />
-                          {p.workers}
-                        </div>
-                      </td>
                       <td style={{ padding: "14px 16px", fontSize: "13px", fontWeight: "700", color: "#111827" }}>{fmt(p.totalPrice)}</td>
                       <td style={{ padding: "14px 16px" }}>
                         {p.totalPrice > 0 && (
@@ -370,7 +362,7 @@ export default function ProjektetPage() {
                 })}
                 {projects.length === 0 && !showSkeleton && (
                   <tr>
-                    <td colSpan={7} style={{ padding: "80px 24px", textAlign: "center" }}>
+                    <td colSpan={6} style={{ padding: "80px 24px", textAlign: "center" }}>
                       <div style={{ width: "60px", height: "60px", background: "#F3F4F6", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
                         <FolderOpen size={26} color="#9CA3AF" />
                       </div>

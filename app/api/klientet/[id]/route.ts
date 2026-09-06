@@ -15,10 +15,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params;
     const client = await prisma.client.findUnique({
       where: { id },
-      include: { projects: { orderBy: { createdAt: "desc" } } },
+      include: {
+        projects: {
+          orderBy: { createdAt: "desc" },
+          include: { expenses: { select: { amount: true } } },
+        },
+      },
     });
     if (!client) return notFound();
-    return NextResponse.json(client);
+    const withExpenses = {
+      ...client,
+      projects: client.projects.map((p) => ({
+        ...p,
+        totalExpenses: p.expenses.reduce((s, e) => s + e.amount, 0),
+        expenses: undefined,
+      })),
+    };
+    return NextResponse.json(withExpenses);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Gabim gjatë marrjes së klientit" }, { status: 500 });

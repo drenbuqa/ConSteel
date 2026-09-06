@@ -19,8 +19,7 @@ interface Project {
   name: string;
   status: string;
   totalPrice: number;
-  totaliShpenzimeve: number;
-  workers: number;
+  totalExpenses: number;
   startDate: string | null;
   endDate: string | null;
   location: string | null;
@@ -322,7 +321,7 @@ export default function ClientDetailPage() {
   );
 
   const totalValue = client.projects.reduce((s, p) => s + p.totalPrice, 0);
-  const totalExpenses = client.projects.reduce((s, p) => s + p.totaliShpenzimeve, 0);
+  const totalExpenses = client.projects.reduce((s, p) => s + (p.totalExpenses ?? 0), 0);
   const activeProjects = client.projects.filter((p) => p.status === "active");
   const initials = client.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -549,7 +548,7 @@ export default function ClientDetailPage() {
               ))}
             </div>
             {client.projects.map((p, i) => {
-              const expenses = p.totaliShpenzimeve;
+              const expenses = p.totalExpenses ?? 0;
               const overBudget = expenses > p.totalPrice && p.totalPrice > 0;
               return (
                 <div
@@ -584,9 +583,6 @@ export default function ClientDetailPage() {
                         {Math.round((expenses / p.totalPrice) * 100)}% e vlerës
                       </div>
                     )}
-                  </div>
-                  <div className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#374151" }}>
-                    <Users size={13} color="#9CA3AF" /> {p.workers}
                   </div>
                   <div className="hide-mobile"><StatusBadge status={p.status} /></div>
                   <div className="hide-mobile" style={{ textAlign: "right" }}>

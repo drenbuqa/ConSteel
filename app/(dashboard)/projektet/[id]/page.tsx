@@ -21,14 +21,14 @@ const CLOUDINARY_PRESET = "ConSteel_uploads";
 
 interface Report { id: string; title: string; content: string; date: string; }
 interface Payment { id: string; amount: number; date: string; note: string | null; }
+interface Expense { id: string; name: string; amount: number; date: string; note: string | null; }
+interface WorkerLog { id: string; date: string; count: number; note: string | null; }
 interface Client { id: string; name: string; }
 interface ProjectFile { id: string; url: string; name: string; size: number | null; type: string; ext: string | null; createdAt: string; }
 interface Project {
   id: string; name: string; location: string | null; clientId: string; client: Client;
-  status: string; workers: number; startDate: string | null; endDate: string | null;
-  totalPrice: number; shpenzimeOperative: number; shpenzimeMateriali: number;
-  shpenzimeUshqimBonuse: number; shpenzimeTransportSherbimi: number;
-  puneShteseTotal: number; totaliShpenzimeve: number; notes: string | null;
+  status: string; startDate: string | null; endDate: string | null;
+  totalPrice: number; notes: string | null;
   reports: Report[];
   files: ProjectFile[];
   payments: Payment[];
@@ -158,15 +158,6 @@ function EditDrawer({ form, clients, setClients, saving, onClose, onSave, setF, 
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  const liveTotal =
-    (parseFloat(form.shpenzimeOperative) || 0) +
-    (parseFloat(form.shpenzimeMateriali) || 0) +
-    (parseFloat(form.shpenzimeUshqimBonuse) || 0) +
-    (parseFloat(form.shpenzimeTransportSherbimi) || 0) +
-    (parseFloat(form.puneShteseTotal) || 0);
-
-  const liveProfit = (parseFloat(form.totalPrice) || 0) - liveTotal;
-
   return (
     <>
       {/* Backdrop */}
@@ -246,7 +237,6 @@ function EditDrawer({ form, clients, setClients, saving, onClose, onSave, setF, 
                 </div>
               </div>
 
-              <FInput label="Numri i punëtorëve" name="workers" type="number" value={form.workers} onChange={setF} placeholder="0" />
               <div className="pd-2form">
                 <div>
                   <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Data e fillimit</label>
@@ -275,31 +265,7 @@ function EditDrawer({ form, clients, setClients, saving, onClose, onSave, setF, 
           {/* Section 2: Financat */}
           <div style={{ marginBottom: "28px" }}>
             <SectionHeader icon={<Euro size={14} color="#6B7280" />} title="Financat" />
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <FInput label="Vlera e kontratës (€)" name="totalPrice" type="number" value={form.totalPrice} onChange={setF} placeholder="0" />
-              <div className="pd-2form">
-                <FInput label="Shpenzime operative (€)" name="shpenzimeOperative" type="number" value={form.shpenzimeOperative} onChange={setF} placeholder="0" />
-                <FInput label="Shpenzime materiali (€)" name="shpenzimeMateriali" type="number" value={form.shpenzimeMateriali} onChange={setF} placeholder="0" />
-                <FInput label="Ushqim & bonuse (€)" name="shpenzimeUshqimBonuse" type="number" value={form.shpenzimeUshqimBonuse} onChange={setF} placeholder="0" />
-                <FInput label="Transport & shërbimi (€)" name="shpenzimeTransportSherbimi" type="number" value={form.shpenzimeTransportSherbimi} onChange={setF} placeholder="0" />
-              </div>
-              <FInput label="Punë shtesë (€)" name="puneShteseTotal" type="number" value={form.puneShteseTotal} onChange={setF} placeholder="0" />
-
-              {/* Live preview */}
-              <div style={{ background: "#F9FAFB", borderRadius: "10px", padding: "14px 16px", border: "1px solid #EAECF0" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "10px" }}>Pasqyra live</div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6B7280", marginBottom: "5px" }}>
-                  <span>Total shpenzime</span>
-                  <span style={{ fontWeight: "600", color: "#374151" }}>{fmt(liveTotal)}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                  <span style={{ color: "#6B7280" }}>{liveProfit >= 0 ? "Fitimi" : "Humbja"}</span>
-                  <span style={{ fontWeight: "700", color: liveProfit >= 0 ? "#16A34A" : "#DC2626" }}>
-                    {liveProfit >= 0 ? "+" : ""}{fmt(Math.abs(liveProfit))}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <FInput label="Vlera e kontratës (€)" name="totalPrice" type="number" value={form.totalPrice} onChange={setF} placeholder="0" />
           </div>
 
           {/* Section 3: Shënime */}
@@ -640,11 +606,24 @@ export default function ProjectDetailPage() {
   const { toast } = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
-  const [tab, setTab] = useState<"permbledhje" | "shpenzimet" | "raportet" | "foto" | "dokumente" | "pagesat">("permbledhje");
+  const [tab, setTab] = useState<"permbledhje" | "shpenzimet" | "punetore" | "raportet" | "foto" | "dokumente" | "pagesat">("permbledhje");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ amount: "", date: new Date().toISOString().split("T")[0], note: "" });
   const [paymentSaving, setPaymentSaving] = useState(false);
   const [confirmPaymentId, setConfirmPaymentId] = useState<string | null>(null);
+
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [expenseForm, setExpenseForm] = useState({ name: "", amount: "", date: new Date().toISOString().split("T")[0], note: "" });
+  const [expenseSaving, setExpenseSaving] = useState(false);
+  const [confirmExpenseId, setConfirmExpenseId] = useState<string | null>(null);
+
+  const [workerLogs, setWorkerLogs] = useState<WorkerLog[]>([]);
+  const [showWorkerModal, setShowWorkerModal] = useState(false);
+  const [workerForm, setWorkerForm] = useState({ count: "", date: new Date().toISOString().split("T")[0], note: "" });
+  const [workerSaving, setWorkerSaving] = useState(false);
+  const [confirmWorkerId, setConfirmWorkerId] = useState<string | null>(null);
+
   const [allFiles, setAllFiles] = useState<ProjectFile[]>([]);
   const [loading, setLoading] = useState(true);
   const showSkeleton = useDelayedLoading(loading);
@@ -653,9 +632,8 @@ export default function ProjectDetailPage() {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   const [form, setForm] = useState({
-    name: "", location: "", clientId: "", startDate: "", endDate: "", status: "active", workers: "",
-    totalPrice: "", shpenzimeOperative: "", shpenzimeMateriali: "",
-    shpenzimeUshqimBonuse: "", shpenzimeTransportSherbimi: "", puneShteseTotal: "", notes: "",
+    name: "", location: "", clientId: "", startDate: "", endDate: "", status: "active",
+    totalPrice: "", notes: "",
   });
 
   const [showReportModal, setShowReportModal] = useState(false);
@@ -674,22 +652,30 @@ export default function ProjectDetailPage() {
         name: data.name, location: data.location || "", clientId: data.clientId,
         startDate: data.startDate ? data.startDate.split("T")[0] : "",
         endDate: data.endDate ? data.endDate.split("T")[0] : "",
-        status: data.status, workers: String(data.workers || 0),
-        totalPrice: String(data.totalPrice), shpenzimeOperative: String(data.shpenzimeOperative),
-        shpenzimeMateriali: String(data.shpenzimeMateriali),
-        shpenzimeUshqimBonuse: String(data.shpenzimeUshqimBonuse),
-        shpenzimeTransportSherbimi: String(data.shpenzimeTransportSherbimi),
-        puneShteseTotal: String(data.puneShteseTotal),
+        status: data.status,
+        totalPrice: String(data.totalPrice),
         notes: data.notes || "",
       });
     }
     setLoading(false);
   }, [id]);
 
+  const fetchExpenses = useCallback(async () => {
+    const res = await fetch(`/api/projektet/${id}/shpenzime`);
+    if (res.ok) setExpenses(await res.json());
+  }, [id]);
+
+  const fetchWorkerLogs = useCallback(async () => {
+    const res = await fetch(`/api/projektet/${id}/punetore`);
+    if (res.ok) setWorkerLogs(await res.json());
+  }, [id]);
+
   useEffect(() => {
     fetchProject();
+    fetchExpenses();
+    fetchWorkerLogs();
     fetch("/api/klientet").then((r) => r.json()).then(setClients).catch(console.error);
-  }, [fetchProject]);
+  }, [fetchProject, fetchExpenses, fetchWorkerLogs]);
 
   const setF = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -762,6 +748,46 @@ export default function ProjectDetailPage() {
     toast({ type: "success", message: "Pagesa u fshi." });
   };
 
+  const handleAddExpense = async () => {
+    if (!expenseForm.name.trim() || !expenseForm.amount) return;
+    setExpenseSaving(true);
+    await fetch(`/api/projektet/${id}/shpenzime`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(expenseForm),
+    });
+    setExpenseSaving(false);
+    setShowExpenseModal(false);
+    setExpenseForm({ name: "", amount: "", date: new Date().toISOString().split("T")[0], note: "" });
+    fetchExpenses();
+    toast({ type: "success", message: "Shpenzimi u shtua." });
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    await fetch(`/api/projektet/${id}/shpenzime/${expenseId}`, { method: "DELETE" });
+    fetchExpenses();
+    toast({ type: "success", message: "Shpenzimi u fshi." });
+  };
+
+  const handleAddWorkerLog = async () => {
+    if (!workerForm.count || parseInt(workerForm.count) < 1) return;
+    setWorkerSaving(true);
+    await fetch(`/api/projektet/${id}/punetore`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(workerForm),
+    });
+    setWorkerSaving(false);
+    setShowWorkerModal(false);
+    setWorkerForm({ count: "", date: new Date().toISOString().split("T")[0], note: "" });
+    fetchWorkerLogs();
+    toast({ type: "success", message: "Prezenca u regjistrua." });
+  };
+
+  const handleDeleteWorkerLog = async (logId: string) => {
+    await fetch(`/api/projektet/${id}/punetore/${logId}`, { method: "DELETE" });
+    fetchWorkerLogs();
+    toast({ type: "success", message: "Regjistri u fshi." });
+  };
+
   if (loading) return showSkeleton ? <SkeletonProjectDetail /> : null;
   if (!project) return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center" }}>
@@ -778,16 +804,9 @@ export default function ProjectDetailPage() {
     </div>
   );
 
-  const totalExp = project.totaliShpenzimeve;
+  const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
   const profit = project.totalPrice - totalExp;
-  const expCategories = [
-    { label: "Operative", value: project.shpenzimeOperative, color: "#374151" },
-    { label: "Materiali", value: project.shpenzimeMateriali, color: "#374151" },
-    { label: "Ushqim & bonuse", value: project.shpenzimeUshqimBonuse, color: "#374151" },
-    { label: "Transport & shërbimi", value: project.shpenzimeTransportSherbimi, color: "#374151" },
-    { label: "Punë shtesë", value: project.puneShteseTotal, color: "#374151" },
-  ];
-  const maxExpValue = Math.max(...expCategories.map((c) => c.value), 1);
+  const totalWorkerDays = workerLogs.reduce((s, l) => s + l.count, 0);
 
   const totalPaid = project.totalPaid ?? 0;
   const totalOwed = Math.max(0, project.totalPrice - totalPaid);
@@ -796,6 +815,7 @@ export default function ProjectDetailPage() {
   const tabs = [
     { key: "permbledhje", label: "Përmbledhje", icon: <Building2 size={14} /> },
     { key: "shpenzimet", label: "Shpenzimet", icon: <Euro size={14} /> },
+    { key: "punetore", label: "Punëtorët", icon: <Users size={14} /> },
     { key: "pagesat", label: "Pagesat", icon: <ReceiptText size={14} /> },
     { key: "raportet", label: "Raportet", icon: <FileText size={14} /> },
     { key: "foto", label: "Foto", icon: <Image size={14} /> },
@@ -867,7 +887,7 @@ export default function ProjectDetailPage() {
                 </div>
               )}
               <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#6B7280" }}>
-                <Users size={13} color="#9CA3AF" /><span>{project.workers} punëtorë</span>
+                <Users size={13} color="#9CA3AF" /><span>{totalWorkerDays} ditë-punëtor</span>
               </div>
               {project.startDate && (
                 <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#6B7280" }}>
@@ -917,7 +937,7 @@ export default function ProjectDetailPage() {
                 </span>
               )}
               <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
-                <Users size={10} color="#9CA3AF" />{project.workers} punëtorë
+                <Users size={10} color="#9CA3AF" />{totalWorkerDays} ditë-punëtor
               </span>
               {project.startDate && (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
@@ -1012,7 +1032,7 @@ export default function ProjectDetailPage() {
                 { label: "Klienti", value: project.client.name },
                 { label: "Lokacioni", value: project.location || "—" },
                 { label: "Statusi", value: <StatusBadge status={project.status} /> },
-                { label: "Punëtorë", value: `${project.workers} persona` },
+                { label: "Ditë-punëtor", value: `${totalWorkerDays} ditë` },
                 { label: "Data fillimit", value: project.startDate ? fmtDate(project.startDate) : "—" },
                 { label: "Data mbarimit", value: project.endDate ? fmtDate(project.endDate) : "—" },
               ].map((row, idx, arr) => (
@@ -1047,55 +1067,144 @@ export default function ProjectDetailPage() {
 
       {/* ── TAB: Shpenzimet ── */}
       {tab === "shpenzimet" && (
-        <div className="pd-2grid">
-          <div className="card" style={{ padding: "20px" }}>
-            <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }}>
-              <Euro size={14} color="#9CA3AF" /> Shpenzimet sipas kategorisë
-            </div>
-            {expCategories.map((cat) => (
-              <div key={cat.label} style={{ marginBottom: "14px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
-                  <span style={{ fontSize: "12px", color: "#374151", fontWeight: "500" }}>{cat.label}</span>
-                  <span style={{ fontSize: "12px", fontWeight: "700", color: "#111827" }}>{fmt(cat.value)}</span>
-                </div>
-                <div style={{ height: "7px", background: "#F3F4F6", borderRadius: "99px", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${totalExp > 0 ? Math.min(100, (cat.value / maxExpValue) * 100) : 0}%`, background: cat.color, borderRadius: "99px", transition: "width 0.5s ease" }} />
-                </div>
-                {totalExp > 0 && (
-                  <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "3px" }}>
-                    {Math.round((cat.value / totalExp) * 100)}% e totalit
-                  </div>
-                )}
-              </div>
-            ))}
-            <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid #F3F4F6", display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontSize: "13px", fontWeight: "600", color: "#374151" }}>Total shpenzime</span>
-              <span style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>{fmt(totalExp)}</span>
-            </div>
-          </div>
-          <div className="card" style={{ padding: "20px" }}>
-            <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }}>
-              <ReceiptText size={14} color="#9CA3AF" /> Përmbledhje financiare
-            </div>
+        <div>
+          {/* Summary row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "16px" }}>
             {[
-              { label: "Vlera e kontratës", value: fmt(project.totalPrice), bold: true },
-              { label: "Shpenzime operative", value: fmt(project.shpenzimeOperative), bold: false },
-              { label: "Shpenzime materiali", value: fmt(project.shpenzimeMateriali), bold: false },
-              { label: "Ushqim & bonuse", value: fmt(project.shpenzimeUshqimBonuse), bold: false },
-              { label: "Transport & shërbimi", value: fmt(project.shpenzimeTransportSherbimi), bold: false },
-              { label: "Punë shtesë", value: fmt(project.puneShteseTotal), bold: false },
-              { label: "Total shpenzime", value: fmt(totalExp), bold: true },
-            ].map((row, idx, arr) => (
-              <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: idx < arr.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                <span style={{ fontSize: "13px", color: idx === 0 || idx === arr.length - 1 ? "#374151" : "#9CA3AF" }}>{row.label}</span>
-                <span style={{ fontSize: "13px", fontWeight: row.bold ? "700" : "500", color: "#111827" }}>{row.value}</span>
+              { label: "Kontrata", value: fmt(project.totalPrice), color: "#111827" },
+              { label: "Total shpenzime", value: fmt(totalExp), color: totalExp > project.totalPrice ? "#DC2626" : "#111827" },
+              { label: profit >= 0 ? "Fitimi" : "Humbja", value: `${profit >= 0 ? "+" : ""}${fmt(Math.abs(profit))}`, color: profit >= 0 ? "#16A34A" : "#DC2626" },
+            ].map((s) => (
+              <div key={s.label} className="card" style={{ padding: "14px 16px" }}>
+                <div style={{ fontSize: "10px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "6px" }}>{s.label}</div>
+                <div style={{ fontSize: "17px", fontWeight: "700", color: s.color, fontVariantNumeric: "tabular-nums" }}>{s.value}</div>
               </div>
             ))}
-            <div style={{ marginTop: "14px", padding: "14px 16px", borderRadius: "10px", background: profit >= 0 ? "#F0FDF4" : "#FEF2F2", border: `1px solid ${profit >= 0 ? "#BBF7D0" : "#FECACA"}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "13px", fontWeight: "600", color: profit >= 0 ? "#16A34A" : "#DC2626" }}>{profit >= 0 ? "Fitimi" : "Humbja"}</span>
-              <span style={{ fontSize: "16px", fontWeight: "700", color: profit >= 0 ? "#16A34A" : "#DC2626" }}>{profit >= 0 ? "+" : ""}{fmt(Math.abs(profit))}</span>
-            </div>
           </div>
+
+          {/* Header + add button */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827" }}>
+              Shpenzimet
+              {expenses.length > 0 && <span style={{ fontSize: "12px", fontWeight: "600", background: "#F3F4F6", color: "#6B7280", padding: "2px 8px", borderRadius: "20px", marginLeft: "8px" }}>{expenses.length}</span>}
+            </div>
+            <button onClick={() => setShowExpenseModal(true)} className="btn-primary" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", padding: "7px 14px" }}>
+              <Plus size={14} /> Shto shpenzim
+            </button>
+          </div>
+
+          {expenses.length === 0 ? (
+            <div className="card" style={{ padding: "56px 24px", textAlign: "center" }}>
+              <div style={{ width: "52px", height: "52px", background: "#F3F4F6", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+                <Euro size={22} color="#9CA3AF" />
+              </div>
+              <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka shpenzime ende</div>
+              <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "280px", margin: "0 auto 20px", lineHeight: 1.6 }}>Regjistroni shpenzimet e projektit: ushqim, transport, materiale dhe të tjera.</div>
+              <button onClick={() => setShowExpenseModal(true)} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 20px", background: "#111827", color: "white", border: "none", borderRadius: "9px", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
+                <Plus size={14} /> Shto shpenzimin e parë
+              </button>
+            </div>
+          ) : (
+            <div className="card" style={{ overflow: "hidden" }}>
+              {/* Table header */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px 120px 36px", gap: "8px", padding: "10px 16px", borderBottom: "1px solid #F3F4F6", background: "#F9FAFB" }}>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>Shpenzimi</span>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>Data</span>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Shuma</span>
+                <span />
+              </div>
+              {expenses.map((exp, i) => (
+                <div key={exp.id} style={{ display: "grid", gridTemplateColumns: "1fr 120px 120px 36px", gap: "8px", alignItems: "center", padding: "12px 16px", borderBottom: i < expenses.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                  <div>
+                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>{exp.name}</div>
+                    {exp.note && <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.note}</div>}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#6B7280", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Calendar size={11} /> {fmtDate(exp.date)}
+                  </div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", textAlign: "right" }}>{fmt(exp.amount)}</div>
+                  <button onClick={() => setConfirmExpenseId(exp.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+              {/* Total row */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px 120px 36px", gap: "8px", alignItems: "center", padding: "12px 16px", borderTop: "2px solid #F3F4F6", background: "#F9FAFB" }}>
+                <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
+                <span />
+                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", textAlign: "right" }}>{fmt(totalExp)}</span>
+                <span />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB: Punëtorët ── */}
+      {tab === "punetore" && (
+        <div>
+          {/* Summary */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+            {[
+              { label: "Total ditë-punëtor", value: String(totalWorkerDays) },
+              { label: "Regjistrime", value: String(workerLogs.length) },
+            ].map((s) => (
+              <div key={s.label} className="card" style={{ padding: "14px 16px" }}>
+                <div style={{ fontSize: "10px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "6px" }}>{s.label}</div>
+                <div style={{ fontSize: "22px", fontWeight: "800", color: "#111827", fontVariantNumeric: "tabular-nums" }}>{s.value}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827" }}>
+              Prezenca ditore
+              {workerLogs.length > 0 && <span style={{ fontSize: "12px", fontWeight: "600", background: "#F3F4F6", color: "#6B7280", padding: "2px 8px", borderRadius: "20px", marginLeft: "8px" }}>{workerLogs.length}</span>}
+            </div>
+            <button onClick={() => setShowWorkerModal(true)} className="btn-primary" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", padding: "7px 14px" }}>
+              <Plus size={14} /> Regjistro prezencë
+            </button>
+          </div>
+
+          {workerLogs.length === 0 ? (
+            <div className="card" style={{ padding: "56px 24px", textAlign: "center" }}>
+              <div style={{ width: "52px", height: "52px", background: "#F3F4F6", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+                <Users size={22} color="#9CA3AF" />
+              </div>
+              <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka regjistrime ende</div>
+              <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "280px", margin: "0 auto 20px", lineHeight: 1.6 }}>Regjistroni çdo ditë numrin e punëtorëve të pranishëm në kantier.</div>
+              <button onClick={() => setShowWorkerModal(true)} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 20px", background: "#111827", color: "white", border: "none", borderRadius: "9px", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
+                <Plus size={14} /> Regjistro ditën e parë
+              </button>
+            </div>
+          ) : (
+            <div className="card" style={{ overflow: "hidden" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "140px 1fr 80px 36px", gap: "8px", padding: "10px 16px", borderBottom: "1px solid #F3F4F6", background: "#F9FAFB" }}>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>Data</span>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>Shënim</span>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Punëtorë</span>
+                <span />
+              </div>
+              {workerLogs.map((log, i) => (
+                <div key={log.id} style={{ display: "grid", gridTemplateColumns: "140px 1fr 80px 36px", gap: "8px", alignItems: "center", padding: "12px 16px", borderBottom: i < workerLogs.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                  <div style={{ fontSize: "12px", color: "#374151", fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Calendar size={11} color="#9CA3AF" /> {fmtDate(log.date)}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#9CA3AF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{log.note || "—"}</div>
+                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827", textAlign: "right" }}>{log.count}</div>
+                  <button onClick={() => setConfirmWorkerId(log.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -1306,6 +1415,24 @@ export default function ProjectDetailPage() {
         />
       )}
 
+      {/* Expense delete confirm */}
+      {confirmExpenseId && (
+        <DeleteConfirmModal
+          label="Fshi shpenzimin?"
+          onConfirm={() => { handleDeleteExpense(confirmExpenseId); setConfirmExpenseId(null); }}
+          onCancel={() => setConfirmExpenseId(null)}
+        />
+      )}
+
+      {/* Worker log delete confirm */}
+      {confirmWorkerId && (
+        <DeleteConfirmModal
+          label="Fshi regjistrimin?"
+          onConfirm={() => { handleDeleteWorkerLog(confirmWorkerId); setConfirmWorkerId(null); }}
+          onCancel={() => setConfirmWorkerId(null)}
+        />
+      )}
+
       {/* Payment modal */}
       {showPaymentModal && (
         <Modal onClose={() => { setShowPaymentModal(false); setPaymentForm({ amount: "", date: new Date().toISOString().split("T")[0], note: "" }); }} title="Regjistro pagesë">
@@ -1335,6 +1462,68 @@ export default function ProjectDetailPage() {
               <button onClick={() => { setShowPaymentModal(false); setPaymentForm({ amount: "", date: new Date().toISOString().split("T")[0], note: "" }); }} className="btn-secondary" style={{ flex: 1 }}>Anulo</button>
               <button onClick={handleAddPayment} disabled={paymentSaving || !paymentForm.amount} className="btn-primary" style={{ flex: 2, justifyContent: "center", opacity: !paymentForm.amount ? 0.5 : 1 }}>
                 {paymentSaving ? "Duke ruajtur..." : <><Check size={14} /> Regjistro pagesën</>}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Expense modal */}
+      {showExpenseModal && (
+        <Modal onClose={() => { setShowExpenseModal(false); setExpenseForm({ name: "", amount: "", date: new Date().toISOString().split("T")[0], note: "" }); }} title="Shto shpenzim">
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Emri i shpenzimit *</label>
+              <input value={expenseForm.name} onChange={(e) => setExpenseForm({ ...expenseForm, name: e.target.value })} placeholder="p.sh. Ushqim, Transport, Material" style={{ ...inputStyle, boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Shuma (€) *</label>
+              <div style={{ position: "relative" }}>
+                <Euro size={14} color="#9CA3AF" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+                <input type="number" inputMode="decimal" min="0" value={expenseForm.amount} onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })} placeholder="0" style={{ ...inputStyle, paddingLeft: "36px", boxSizing: "border-box" }} />
+              </div>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Data</label>
+              <DatePicker value={expenseForm.date} onChange={(v) => setExpenseForm({ ...expenseForm, date: v })} placeholder="Zgjidh datën..." dropUp />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Shënim (opsional)</label>
+              <input value={expenseForm.note} onChange={(e) => setExpenseForm({ ...expenseForm, note: e.target.value })} placeholder="Detaje shtesë..." style={{ ...inputStyle, boxSizing: "border-box" }} />
+            </div>
+            <div style={{ display: "flex", gap: "10px", paddingTop: "4px" }}>
+              <button onClick={() => { setShowExpenseModal(false); setExpenseForm({ name: "", amount: "", date: new Date().toISOString().split("T")[0], note: "" }); }} className="btn-secondary" style={{ flex: 1 }}>Anulo</button>
+              <button onClick={handleAddExpense} disabled={expenseSaving || !expenseForm.name || !expenseForm.amount} className="btn-primary" style={{ flex: 2, justifyContent: "center", opacity: (!expenseForm.name || !expenseForm.amount) ? 0.5 : 1 }}>
+                {expenseSaving ? "Duke ruajtur..." : <><Check size={14} /> Shto shpenzimin</>}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Worker modal */}
+      {showWorkerModal && (
+        <Modal onClose={() => { setShowWorkerModal(false); setWorkerForm({ count: "", date: new Date().toISOString().split("T")[0], note: "" }); }} title="Regjistro prezencë">
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Numri i punëtorëve *</label>
+              <div style={{ position: "relative" }}>
+                <Users size={14} color="#9CA3AF" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+                <input type="number" inputMode="numeric" min="1" value={workerForm.count} onChange={(e) => setWorkerForm({ ...workerForm, count: e.target.value })} placeholder="p.sh. 8" style={{ ...inputStyle, paddingLeft: "36px", boxSizing: "border-box" }} />
+              </div>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Data</label>
+              <DatePicker value={workerForm.date} onChange={(v) => setWorkerForm({ ...workerForm, date: v })} placeholder="Zgjidh datën..." dropUp />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: "600", color: "#6B7280", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Shënim (opsional)</label>
+              <input value={workerForm.note} onChange={(e) => setWorkerForm({ ...workerForm, note: e.target.value })} placeholder="p.sh. Punim themeli, etje" style={{ ...inputStyle, boxSizing: "border-box" }} />
+            </div>
+            <div style={{ display: "flex", gap: "10px", paddingTop: "4px" }}>
+              <button onClick={() => { setShowWorkerModal(false); setWorkerForm({ count: "", date: new Date().toISOString().split("T")[0], note: "" }); }} className="btn-secondary" style={{ flex: 1 }}>Anulo</button>
+              <button onClick={handleAddWorkerLog} disabled={workerSaving || !workerForm.count} className="btn-primary" style={{ flex: 2, justifyContent: "center", opacity: !workerForm.count ? 0.5 : 1 }}>
+                {workerSaving ? "Duke ruajtur..." : <><Check size={14} /> Regjistro prezencën</>}
               </button>
             </div>
           </div>

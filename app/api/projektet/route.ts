@@ -50,18 +50,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const {
-      name, location, clientId, startDate, endDate, status, workers,
-      totalPrice, shpenzimeOperative, shpenzimeMateriali,
-      shpenzimeUshqimBonuse, shpenzimeTransportSherbimi, puneShteseTotal, notes,
-    } = body;
-
-    const totaliShpenzimeve =
-      (parseFloat(shpenzimeOperative) || 0) +
-      (parseFloat(shpenzimeMateriali) || 0) +
-      (parseFloat(shpenzimeUshqimBonuse) || 0) +
-      (parseFloat(shpenzimeTransportSherbimi) || 0) +
-      (parseFloat(puneShteseTotal) || 0);
+    const { name, location, clientId, startDate, endDate, status, totalPrice, notes } = body;
 
     const project = await prisma.project.create({
       data: {
@@ -71,14 +60,7 @@ export async function POST(request: NextRequest) {
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         status: status || "active",
-        workers: parseInt(workers) || 0,
         totalPrice: parseFloat(totalPrice) || 0,
-        shpenzimeOperative: parseFloat(shpenzimeOperative) || 0,
-        shpenzimeMateriali: parseFloat(shpenzimeMateriali) || 0,
-        shpenzimeUshqimBonuse: parseFloat(shpenzimeUshqimBonuse) || 0,
-        shpenzimeTransportSherbimi: parseFloat(shpenzimeTransportSherbimi) || 0,
-        puneShteseTotal: parseFloat(puneShteseTotal) || 0,
-        totaliShpenzimeve,
         notes: notes || null,
       },
       include: { client: true },

@@ -44,6 +44,8 @@ model Project {
   reports                    Report[]
   files                      ProjectFile[]
   payments                   Payment[]
+  expenses                   Expense[]
+  workerLogs                 WorkerLog[]
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime  @updatedAt
 }
@@ -54,6 +56,27 @@ model Payment {
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   amount    Float
   date      DateTime @default(now())
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Float
+  date      DateTime @default(now())
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model WorkerLog {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  count     Int
   note      String?
   createdAt DateTime @default(now())
 }

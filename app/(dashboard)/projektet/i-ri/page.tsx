@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft, ArrowRight, Save, Building2, Euro, FileText, Users, MapPin,
-  AlertCircle, TrendingUp, TrendingDown, Check, ChevronRight,
+  ArrowLeft, ArrowRight, Save, Building2, Euro, FileText, MapPin,
+  AlertCircle, Check, ChevronRight,
 } from "lucide-react";
 import DatePicker from "@/components/DatePicker";
 import ClientSelect from "@/components/ClientSelect";
@@ -20,18 +20,10 @@ const STATUS_OPTIONS = [
   { value: "completed", label: "Përfunduar",  color: "#6B7280", bg: "#F3F4F6", border: "#E5E7EB", dot: "#9CA3AF" },
 ];
 
-const EXPENSE_FIELDS = [
-  { name: "shpenzimeOperative",        label: "Operative",           hint: "Kosto të përgjithshme operative" },
-  { name: "shpenzimeMateriali",         label: "Materiali",           hint: "Blerje materialesh ndërtimi" },
-  { name: "shpenzimeUshqimBonuse",      label: "Ushqim & bonuse",     hint: "Katering dhe shpërblime" },
-  { name: "shpenzimeTransportSherbimi", label: "Transport & shërbimi",hint: "Logjistikë dhe shërbime" },
-  { name: "puneShteseTotal",            label: "Punë shtesë",         hint: "Totali i punëve shtesë" },
-] as const;
-
 const STEPS = [
   { id: 1, label: "Bazë",     icon: Building2, subtitle: "Emri, klienti dhe statusi" },
   { id: 2, label: "Detaje",   icon: MapPin,    subtitle: "Lokacioni, datat dhe shënime" },
-  { id: 3, label: "Financat", icon: Euro,      subtitle: "Vlerat dhe shpenzimet" },
+  { id: 3, label: "Financat", icon: Euro,      subtitle: "Vlera e kontratës" },
 ];
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
@@ -205,10 +197,8 @@ function NewProjectPage() {
 
   const [form, setForm] = useState({
     name: "", location: "", clientId: prefilledClientId, startDate: "", endDate: "",
-    status: "active", workers: "",
-    totalPrice: "", shpenzimeOperative: "", shpenzimeMateriali: "",
-    shpenzimeUshqimBonuse: "", shpenzimeTransportSherbimi: "",
-    puneShteseTotal: "",
+    status: "active",
+    totalPrice: "",
     notes: "",
   });
 
@@ -227,15 +217,6 @@ function NewProjectPage() {
     setErrors((er) => { const n = { ...er }; delete n[name]; return n; });
   };
 
-  const totalShpenzime =
-    (parseFloat(form.shpenzimeOperative) || 0) +
-    (parseFloat(form.shpenzimeMateriali) || 0) +
-    (parseFloat(form.shpenzimeUshqimBonuse) || 0) +
-    (parseFloat(form.shpenzimeTransportSherbimi) || 0) +
-    (parseFloat(form.puneShteseTotal) || 0);
-
-  const profit = (parseFloat(form.totalPrice) || 0) - totalShpenzime;
-  const fmtNum = (n: number) => n.toLocaleString("de-DE") + " €";
 
   // Validate step 1 (required fields)
   const validateStep1 = () => {
@@ -449,16 +430,6 @@ function NewProjectPage() {
                     />
                   </div>
 
-                  <div>
-                    <MobileLabel text="Numri i punëtorëve" hint="Sa punëtorë janë të angazhuar" />
-                    <MobileInput
-                      name="workers" value={form.workers} onChange={set}
-                      placeholder="p.sh. 12"
-                      type="number"
-                      icon={<Users size={16} />}
-                    />
-                  </div>
-
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                     <div>
                       <MobileLabel text="Data e fillimit" />
@@ -499,51 +470,9 @@ function NewProjectPage() {
                     <MobileLabel text="Vlera e kontratës" hint="Shuma totale e marrëveshjes" />
                     <NumInput name="totalPrice" value={form.totalPrice} onChange={set} mobile />
                   </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "4px 0" }}>
-                    <div style={{ flex: 1, height: "1px", background: "#E5E7EB" }} />
-                    <span style={{ fontSize: "10px", fontWeight: "800", color: "#9CA3AF", letterSpacing: "0.1em", textTransform: "uppercase" }}>SHPENZIMET</span>
-                    <div style={{ flex: 1, height: "1px", background: "#E5E7EB" }} />
-                  </div>
-
-                  {EXPENSE_FIELDS.map((f) => (
-                    <div key={f.name}>
-                      <MobileLabel text={f.label} hint={f.hint} />
-                      <NumInput name={f.name} value={(form as Record<string, string>)[f.name]} onChange={set} mobile />
-                    </div>
-                  ))}
-
-                  {/* Live summary */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px" }}>
-                    <div style={{ background: "white", border: "1.5px solid #EAECF0", borderRadius: "14px", padding: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <div style={{ fontSize: "10px", color: "#9CA3AF", fontWeight: "800", letterSpacing: "0.08em", textTransform: "uppercase" }}>TOTAL SHPENZIME</div>
-                        <div style={{ fontSize: "22px", fontWeight: "800", color: "#111827", marginTop: "4px", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.5px" }}>
-                          {fmtNum(totalShpenzime)}
-                        </div>
-                      </div>
-                      <div style={{ width: "38px", height: "38px", borderRadius: "10px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Euro size={16} color="#6B7280" />
-                      </div>
-                    </div>
-
-                    <div style={{
-                      background: profit >= 0 ? "#F0FDF4" : "#FEF2F2",
-                      border: `1.5px solid ${profit >= 0 ? "#BBF7D0" : "#FECACA"}`,
-                      borderRadius: "14px", padding: "16px",
-                      display: "flex", justifyContent: "space-between", alignItems: "center",
-                    }}>
-                      <div>
-                        <div style={{ fontSize: "10px", color: profit >= 0 ? "#16A34A" : "#DC2626", fontWeight: "800", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                          {profit >= 0 ? "FITIMI I LLOGARITUR" : "HUMBJA E LLOGARITUR"}
-                        </div>
-                        <div style={{ fontSize: "22px", fontWeight: "800", color: profit >= 0 ? "#16A34A" : "#DC2626", marginTop: "4px", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.5px" }}>
-                          {profit >= 0 ? "+" : ""}{fmtNum(profit)}
-                        </div>
-                      </div>
-                      <div style={{ width: "38px", height: "38px", borderRadius: "10px", background: profit >= 0 ? "#DCFCE7" : "#FEE2E2", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {profit >= 0 ? <TrendingUp size={17} color="#16A34A" /> : <TrendingDown size={17} color="#DC2626" />}
-                      </div>
+                  <div style={{ background: "#F9FAFB", border: "1.5px solid #EAECF0", borderRadius: "12px", padding: "14px 16px", marginTop: "4px" }}>
+                    <div style={{ fontSize: "11px", color: "#9CA3AF", fontWeight: "600", lineHeight: 1.6 }}>
+                      Shpenzimet dhe prezencën e punëtorëve mund t&apos;i shtoni pas krijimit të projektit, brenda skedës &quot;Shpenzimet&quot; dhe &quot;Punëtorët&quot;.
                     </div>
                   </div>
                 </>
@@ -719,17 +648,6 @@ function NewProjectPage() {
                   </div>
 
                   <div>
-                    <FieldLabel text="Numri i punëtorëve" hint="Sa punëtorë janë të angazhuar" />
-                    <div style={{ position: "relative" }}>
-                      <Users size={13} style={{ position: "absolute", left: "11px", top: "50%", transform: "translateY(-50%)", color: "#9CA3AF", pointerEvents: "none" }} />
-                      <input name="workers" type="number" min="0" value={form.workers} onChange={set}
-                        placeholder="0"
-                        style={{ width: "100%", padding: "9px 12px 9px 34px", background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "8px", fontSize: "14px", fontFamily: "Inter, sans-serif", color: "#111827", outline: "none", MozAppearance: "textfield" } as React.CSSProperties}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
                     <FieldLabel text="Data e fillimit" hint="Kur fillon ekzekutimi" />
                     <DatePicker value={form.startDate} onChange={(v) => {
                       setField("startDate", v);
@@ -757,55 +675,16 @@ function NewProjectPage() {
             {/* ── RIGHT — finance ── */}
             <div style={{ position: "sticky", top: "24px" }}>
               <div className="card" style={{ padding: "26px" }}>
-                <SectionHeader icon={<Euro size={16} color="#374151" />} title="Financat" subtitle="Vlerat monetare të projektit" />
+                <SectionHeader icon={<Euro size={16} color="#374151" />} title="Financat" subtitle="Vlera e kontratës" />
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                   <div>
                     <FieldLabel text="Vlera e kontratës" required hint="Shuma totale e marrëveshjes" />
                     <NumInput name="totalPrice" value={form.totalPrice} onChange={set} />
                   </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div style={{ flex: 1, height: "1px", background: "#F3F4F6" }} />
-                    <span style={{ fontSize: "10px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.08em" }}>SHPENZIMET</span>
-                    <div style={{ flex: 1, height: "1px", background: "#F3F4F6" }} />
-                  </div>
-
-                  {EXPENSE_FIELDS.map((f) => (
-                    <div key={f.name}>
-                      <FieldLabel text={f.label} hint={f.hint} />
-                      <NumInput name={f.name} value={(form as Record<string, string>)[f.name]} onChange={set} />
-                    </div>
-                  ))}
-
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "2px" }}>
-                    <div style={{ background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "10px", padding: "13px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <div style={{ fontSize: "10px", color: "#9CA3AF", fontWeight: "700", letterSpacing: "0.08em" }}>TOTAL SHPENZIME</div>
-                        <div style={{ fontSize: "19px", fontWeight: "700", color: "#111827", marginTop: "2px", fontVariantNumeric: "tabular-nums" }}>{fmtNum(totalShpenzime)}</div>
-                      </div>
-                      <div style={{ width: "34px", height: "34px", borderRadius: "8px", background: "#E5E7EB", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Euro size={15} color="#6B7280" />
-                      </div>
-                    </div>
-
-                    <div style={{
-                      background: profit >= 0 ? "#F0FDF4" : "#FEF2F2",
-                      border: `1px solid ${profit >= 0 ? "#BBF7D0" : "#FECACA"}`,
-                      borderRadius: "10px", padding: "13px 16px",
-                      display: "flex", justifyContent: "space-between", alignItems: "center",
-                    }}>
-                      <div>
-                        <div style={{ fontSize: "10px", color: profit >= 0 ? "#16A34A" : "#DC2626", fontWeight: "700", letterSpacing: "0.08em" }}>
-                          {profit >= 0 ? "FITIMI I LLOGARITUR" : "HUMBJA E LLOGARITUR"}
-                        </div>
-                        <div style={{ fontSize: "19px", fontWeight: "700", color: profit >= 0 ? "#16A34A" : "#DC2626", marginTop: "2px", fontVariantNumeric: "tabular-nums" }}>
-                          {profit >= 0 ? "+" : ""}{fmtNum(profit)}
-                        </div>
-                      </div>
-                      <div style={{ width: "34px", height: "34px", borderRadius: "8px", background: profit >= 0 ? "#BBF7D0" : "#FECACA", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {profit >= 0 ? <TrendingUp size={16} color="#16A34A" /> : <TrendingDown size={16} color="#DC2626" />}
-                      </div>
+                  <div style={{ background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "10px", padding: "13px 16px" }}>
+                    <div style={{ fontSize: "12px", color: "#9CA3AF", lineHeight: 1.6 }}>
+                      Shpenzimet dhe prezencën e punëtorëve mund t&apos;i shtoni pas krijimit të projektit, brenda skedës &quot;Shpenzimet&quot; dhe &quot;Punëtorët&quot;.
                     </div>
                   </div>
                 </div>

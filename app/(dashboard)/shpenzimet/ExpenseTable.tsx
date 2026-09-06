@@ -1,195 +1,158 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import { Calendar } from "lucide-react";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("de-DE", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n) + " €";
 }
+function fmtDate(d: string | Date) {
+  return new Date(d).toLocaleDateString("sq-AL", { day: "2-digit", month: "short", year: "numeric" });
+}
 
-interface Project {
+interface ProjectRow {
   id: string;
   name: string;
   client: { name: string };
-  shpenzimeOperative: number;
-  shpenzimeMateriali: number;
-  shpenzimeUshqimBonuse: number;
-  shpenzimeTransportSherbimi: number;
-  puneShteseTotal: number;
-  totaliShpenzimeve: number;
+  totalPrice: number;
+  totalExpenses: number;
+  expenseCount: number;
 }
 
-interface Totals {
-  operative: number;
-  materiali: number;
-  ushqim: number;
-  transport: number;
-  extra: number;
+interface Expense {
+  id: string;
+  projectId: string;
+  name: string;
+  amount: number;
+  date: string | Date;
+  note: string | null;
+  project: { id: string; name: string; client: { name: string } };
 }
 
-export default function ExpenseTable({ projects, totals, grandTotal }: {
-  projects: Project[];
-  totals: Totals;
+export default function ExpenseTable({ byProject, expenses, grandTotal }: {
+  byProject: ProjectRow[];
+  expenses: Expense[];
   grandTotal: number;
 }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [expandedProject, setExpandedProject] = useState<string | null>(null);
 
   return (
     <>
     <style>{`
       @media (max-width: 768px) {
-        .exp-desktop-table { display: none !important; }
-        .exp-mobile-cards  { display: flex !important; }
+        .exp-desktop { display: none !important; }
+        .exp-mobile  { display: flex !important; }
       }
-      .exp-mobile-cards { display: none; flex-direction: column; gap: 8px; padding: 12px; }
+      .exp-mobile { display: none; flex-direction: column; gap: 8px; padding: 12px; }
     `}</style>
-    <div className="card" style={{ overflow: "hidden" }}>
-      <div style={{ padding: "18px 20px 16px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827" }}>Shpenzime sipas projektit</div>
-          <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "1px" }}>{projects.length} projekte</div>
+
+    {/* ── Recent expenses ── */}
+    <div className="card" style={{ overflow: "hidden", marginBottom: "16px" }}>
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid #F3F4F6", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>
+          Të gjitha shpenzimet
+          <span style={{ fontSize: "12px", fontWeight: "600", background: "#F3F4F6", color: "#6B7280", padding: "2px 8px", borderRadius: "20px", marginLeft: "8px" }}>{expenses.length}</span>
         </div>
-        <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827" }}>
-          Total: {fmt(grandTotal)}
-        </div>
+        <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827" }}>Total: {fmt(grandTotal)}</div>
       </div>
 
-      {/* Mobile cards */}
-      <div className="exp-mobile-cards">
-        {projects.map((p) => (
-          <Link key={p.id} href={`/projektet/${p.id}`} style={{ textDecoration: "none" }}>
-            <div style={{ background: "#F9FAFB", borderRadius: "10px", padding: "12px 14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                <div>
-                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>{p.name}</div>
-                  <div style={{ fontSize: "11px", color: "#9CA3AF" }}>{p.client.name}</div>
-                </div>
-                <div style={{ fontSize: "15px", fontWeight: "800", color: "#111827" }}>{fmt(p.totaliShpenzimeve)}</div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px" }}>
-                {[
-                  ["Operative", p.shpenzimeOperative],
-                  ["Materiali", p.shpenzimeMateriali],
-                  ["Ushqim", p.shpenzimeUshqimBonuse],
-                  ["Transport", p.shpenzimeTransportSherbimi],
-                  ["Shtesë", p.puneShteseTotal],
-                ].filter(([, v]) => (v as number) > 0).map(([label, val]) => (
-                  <div key={label as string} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#6B7280" }}>
-                    <span>{label}</span>
-                    <span style={{ fontWeight: "600", color: "#374151" }}>{fmt(val as number)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Link>
-        ))}
-        {projects.length === 0 && (
-          <div style={{ textAlign: "center", padding: "32px 0", color: "#9CA3AF", fontSize: "13px" }}>Nuk ka shpenzime ende</div>
-        )}
-      </div>
-
-      <div className="exp-desktop-table" style={{ overflowX: "auto" }}>
+      {/* Desktop table */}
+      <div className="exp-desktop" style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ background: "#F9FAFB" }}>
-              {["Projekti", "Operative", "Materiali", "Ushqim", "Transport", "Shtesë", "Total"].map((h, i) => (
-                <th key={h} style={{
-                  padding: "10px 14px",
-                  textAlign: i === 0 ? "left" : "right",
-                  fontSize: "10.5px", fontWeight: "700", color: i === 6 ? "#374151" : "#9CA3AF",
-                  letterSpacing: "0.05em", textTransform: "uppercase",
-                  borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap",
-                  borderLeft: i === 6 ? "1px solid #EAECF0" : "none",
-                }}>
+              {["Shpenzimi", "Projekti", "Data", "Shuma"].map((h, i) => (
+                <th key={h} style={{ padding: "10px 16px", textAlign: i === 3 ? "right" : "left", fontSize: "10.5px", fontWeight: "700", color: "#9CA3AF", letterSpacing: "0.05em", textTransform: "uppercase", borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {projects.map((p, i) => {
-              const isEmpty = p.totaliShpenzimeve === 0;
-              const isHovered = hoveredId === p.id;
-              const isLast = i === projects.length - 1;
+            {expenses.map((e, i) => {
+              const isLast = i === expenses.length - 1;
+              const isH = hoveredId === e.id;
               return (
-                <tr
-                  key={p.id}
-                  style={{
-                    borderBottom: isLast ? "none" : "1px solid #F3F4F6",
-                    cursor: "pointer",
-                    background: isHovered ? "#F9FAFB" : "white",
-                    boxShadow: isHovered ? "inset 3px 0 0 #111827" : "none",
-                    transition: "background 0.12s, box-shadow 0.12s",
-                    opacity: isEmpty ? 0.5 : 1,
-                  }}
-                  onMouseEnter={() => setHoveredId(p.id)}
+                <tr key={e.id}
+                  style={{ borderBottom: isLast ? "none" : "1px solid #F3F4F6", cursor: "pointer", background: isH ? "#F9FAFB" : "white", boxShadow: isH ? "inset 3px 0 0 #111827" : "none", transition: "background 0.12s, box-shadow 0.12s" }}
+                  onMouseEnter={() => setHoveredId(e.id)}
                   onMouseLeave={() => setHoveredId(null)}
-                  onClick={() => { window.location.href = `/projektet/${p.id}`; }}
+                  onClick={() => { window.location.href = `/projektet/${e.projectId}?tab=shpenzimet`; }}
                 >
-                  <td style={{ padding: "12px 14px", minWidth: "160px" }}>
-                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>{p.name}</div>
-                    <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "1px" }}>{p.client.name}</div>
+                  <td style={{ padding: "11px 16px" }}>
+                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>{e.name}</div>
+                    {e.note && <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "1px" }}>{e.note}</div>}
                   </td>
-                  {[p.shpenzimeOperative, p.shpenzimeMateriali, p.shpenzimeUshqimBonuse, p.shpenzimeTransportSherbimi, p.puneShteseTotal].map((v, j) => (
-                    <td key={j} style={{ padding: "12px 14px", fontSize: "12.5px", color: v > 0 ? "#374151" : "#D1D5DB", textAlign: "right", whiteSpace: "nowrap" }}>
-                      {v > 0 ? fmt(v) : "—"}
-                    </td>
-                  ))}
-                  <td style={{
-                    padding: "12px 14px", textAlign: "right", whiteSpace: "nowrap",
-                    borderLeft: "1px solid #F3F4F6",
-                    fontSize: "13px", fontWeight: "700",
-                    color: p.totaliShpenzimeve > 0 ? "#111827" : "#D1D5DB",
-                  }}>
-                    {p.totaliShpenzimeve > 0 ? fmt(p.totaliShpenzimeve) : "—"}
+                  <td style={{ padding: "11px 16px" }}>
+                    <div style={{ fontSize: "12px", fontWeight: "500", color: "#374151" }}>{e.project.name}</div>
+                    <div style={{ fontSize: "11px", color: "#9CA3AF" }}>{e.project.client.name}</div>
                   </td>
+                  <td style={{ padding: "11px 16px", fontSize: "12px", color: "#6B7280", whiteSpace: "nowrap" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><Calendar size={11} /> {fmtDate(e.date)}</span>
+                  </td>
+                  <td style={{ padding: "11px 16px", fontSize: "13px", fontWeight: "700", color: "#111827", textAlign: "right", whiteSpace: "nowrap" }}>{fmt(e.amount)}</td>
                 </tr>
               );
             })}
           </tbody>
-          {projects.length > 0 && (
-            <tfoot>
-              <tr style={{ background: "#F3F4F6", borderTop: "2px solid #E5E7EB" }}>
-                <td style={{ padding: "13px 14px", fontSize: "11px", fontWeight: "700", color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Total gjithsej
-                </td>
-                {[totals.operative, totals.materiali, totals.ushqim, totals.transport, totals.extra].map((v, j) => (
-                  <td key={j} style={{ padding: "13px 14px", fontSize: "12.5px", fontWeight: "600", color: "#374151", textAlign: "right", whiteSpace: "nowrap" }}>
-                    {fmt(v)}
-                  </td>
-                ))}
-                <td style={{ padding: "10px 14px", textAlign: "right", whiteSpace: "nowrap", borderLeft: "1px solid #E5E7EB" }}>
-                  <span style={{
-                    display: "inline-block",
-                    background: "#111827", color: "white",
-                    fontSize: "12.5px", fontWeight: "700",
-                    padding: "4px 10px", borderRadius: "6px",
-                    letterSpacing: "-0.2px",
-                  }}>
-                    {fmt(grandTotal)}
-                  </span>
-                </td>
-              </tr>
-            </tfoot>
-          )}
         </table>
+      </div>
 
-        {projects.length === 0 && (
-          <div style={{ padding: "64px 24px", textAlign: "center" }}>
-            <div style={{ width: "52px", height: "52px", background: "#F3F4F6", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
-              <svg width="22" height="22" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      {/* Mobile cards */}
+      <div className="exp-mobile">
+        {expenses.map((e) => (
+          <div key={e.id}
+            onClick={() => { window.location.href = `/projektet/${e.projectId}?tab=shpenzimet`; }}
+            style={{ background: "#F9FAFB", borderRadius: "10px", padding: "12px 14px", cursor: "pointer" }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827" }}>{e.name}</div>
+                <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "1px" }}>{e.project.name} · {fmtDate(e.date)}</div>
+              </div>
+              <div style={{ fontSize: "14px", fontWeight: "800", color: "#111827", flexShrink: 0, marginLeft: "12px" }}>{fmt(e.amount)}</div>
             </div>
-            <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka shpenzime të regjistruara</div>
-            <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "300px", margin: "0 auto 20px", lineHeight: 1.6 }}>
-              Filloni duke krijuar projektin e parë dhe regjistroni shpenzimet e tij.
-            </div>
-            <Link href="/projektet/i-ri" style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 20px", background: "#111827", color: "white", borderRadius: "9px", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
-              + Krijo projekt të ri
-            </Link>
           </div>
-        )}
+        ))}
       </div>
     </div>
+
+    {/* ── By project summary ── */}
+    {byProject.length > 0 && (
+      <div className="card" style={{ overflow: "hidden" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid #F3F4F6" }}>
+          <div style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>Sipas projektit</div>
+        </div>
+        {byProject.map((p, i) => {
+          const isLast = i === byProject.length - 1;
+          const isH = hoveredId === `proj-${p.id}`;
+          const pct = grandTotal > 0 ? (p.totalExpenses / grandTotal) * 100 : 0;
+          return (
+            <div key={p.id}
+              style={{ padding: "13px 20px", borderBottom: isLast ? "none" : "1px solid #F3F4F6", cursor: "pointer", background: isH ? "#F9FAFB" : "white", boxShadow: isH ? "inset 3px 0 0 #111827" : "none", transition: "background 0.12s, box-shadow 0.12s" }}
+              onMouseEnter={() => setHoveredId(`proj-${p.id}`)}
+              onMouseLeave={() => setHoveredId(null)}
+              onClick={() => { window.location.href = `/projektet/${p.id}?tab=shpenzimet`; }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                <div>
+                  <span style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>{p.name}</span>
+                  <span style={{ fontSize: "11px", color: "#9CA3AF", marginLeft: "6px" }}>{p.client.name}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <span style={{ fontSize: "11px", color: "#9CA3AF" }}>{p.expenseCount} shpenzime</span>
+                  <span style={{ fontSize: "13px", fontWeight: "700", color: "#111827" }}>{fmt(p.totalExpenses)}</span>
+                </div>
+              </div>
+              <div style={{ height: "4px", background: "#F3F4F6", borderRadius: "2px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${pct}%`, background: "#111827", borderRadius: "2px", transition: "width 0.4s ease" }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
     </>
   );
 }
