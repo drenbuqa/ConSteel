@@ -23,6 +23,7 @@ interface Report { id: string; title: string; content: string; date: string; }
 interface Payment { id: string; amount: number; date: string; note: string | null; }
 interface Expense { id: string; name: string; amount: number; date: string; note: string | null; }
 interface WorkerLog { id: string; date: string; count: number; note: string | null; }
+interface ActivityLog { id: string; action: string; description: string; createdAt: string; }
 interface Client { id: string; name: string; }
 interface ProjectFile { id: string; url: string; name: string; size: number | null; type: string; ext: string | null; createdAt: string; }
 interface Project {
@@ -606,7 +607,8 @@ export default function ProjectDetailPage() {
   const { toast } = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
-  const [tab, setTab] = useState<"permbledhje" | "shpenzimet" | "punetore" | "raportet" | "foto" | "dokumente" | "pagesat">("permbledhje");
+  const [tab, setTab] = useState<"permbledhje" | "shpenzimet" | "punetore" | "raportet" | "foto" | "dokumente" | "pagesat" | "aktiviteti">("permbledhje");
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ amount: "", date: new Date().toISOString().split("T")[0], note: "" });
   const [paymentSaving, setPaymentSaving] = useState(false);
@@ -670,12 +672,18 @@ export default function ProjectDetailPage() {
     if (res.ok) setWorkerLogs(await res.json());
   }, [id]);
 
+  const fetchActivityLogs = useCallback(async () => {
+    const res = await fetch(`/api/projektet/${id}/aktiviteti`);
+    if (res.ok) setActivityLogs(await res.json());
+  }, [id]);
+
   useEffect(() => {
     fetchProject();
     fetchExpenses();
     fetchWorkerLogs();
+    fetchActivityLogs();
     fetch("/api/klientet").then((r) => r.json()).then(setClients).catch(console.error);
-  }, [fetchProject, fetchExpenses, fetchWorkerLogs]);
+  }, [fetchProject, fetchExpenses, fetchWorkerLogs, fetchActivityLogs]);
 
   const setF = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -693,6 +701,7 @@ export default function ProjectDetailPage() {
       });
       if (res.ok) {
         await fetchProject();
+        await fetchActivityLogs();
         setEditOpen(false);
         toast({ type: "success", message: "Projekti u ruajt me sukses." });
       } else {
@@ -739,12 +748,14 @@ export default function ProjectDetailPage() {
     setShowPaymentModal(false);
     setPaymentForm({ amount: "", date: new Date().toISOString().split("T")[0], note: "" });
     fetchProject();
+    fetchActivityLogs();
     toast({ type: "success", message: "Pagesa u regjistrua." });
   };
 
   const handleDeletePayment = async (paymentId: string) => {
     await fetch(`/api/projektet/${id}/pagesat/${paymentId}`, { method: "DELETE" });
     fetchProject();
+    fetchActivityLogs();
     toast({ type: "success", message: "Pagesa u fshi." });
   };
 
@@ -759,12 +770,14 @@ export default function ProjectDetailPage() {
     setShowExpenseModal(false);
     setExpenseForm({ name: "", amount: "", date: new Date().toISOString().split("T")[0], note: "" });
     fetchExpenses();
+    fetchActivityLogs();
     toast({ type: "success", message: "Shpenzimi u shtua." });
   };
 
   const handleDeleteExpense = async (expenseId: string) => {
     await fetch(`/api/projektet/${id}/shpenzime/${expenseId}`, { method: "DELETE" });
     fetchExpenses();
+    fetchActivityLogs();
     toast({ type: "success", message: "Shpenzimi u fshi." });
   };
 
@@ -779,12 +792,14 @@ export default function ProjectDetailPage() {
     setShowWorkerModal(false);
     setWorkerForm({ count: "", date: new Date().toISOString().split("T")[0], note: "" });
     fetchWorkerLogs();
+    fetchActivityLogs();
     toast({ type: "success", message: "Prezenca u regjistrua." });
   };
 
   const handleDeleteWorkerLog = async (logId: string) => {
     await fetch(`/api/projektet/${id}/punetore/${logId}`, { method: "DELETE" });
     fetchWorkerLogs();
+    fetchActivityLogs();
     toast({ type: "success", message: "Regjistri u fshi." });
   };
 
@@ -820,6 +835,7 @@ export default function ProjectDetailPage() {
     { key: "raportet", label: "Raportet", icon: <FileText size={14} /> },
     { key: "foto", label: "Foto", icon: <Image size={14} /> },
     { key: "dokumente", label: "Dokumente", icon: <FileText size={14} /> },
+    { key: "aktiviteti", label: "Aktiviteti", icon: <Briefcase size={14} /> },
   ] as const;
 
   return (
@@ -1356,6 +1372,54 @@ export default function ProjectDetailPage() {
           onRemove={(id) => setAllFiles((prev) => prev.filter((f) => f.id !== id))}
           onRename={(id, name) => setAllFiles((prev) => prev.map((f) => f.id === id ? { ...f, name } : f))}
         />
+      )}
+
+      {/* ── TAB: Aktiviteti ── */}
+      {tab === "aktiviteti" && (
+        <div>
+          <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", marginBottom: "16px" }}>
+            Historiku i ndryshimeve
+            {activityLogs.length > 0 && <span style={{ fontSize: "12px", fontWeight: "600", background: "#F3F4F6", color: "#6B7280", padding: "2px 8px", borderRadius: "20px", marginLeft: "8px" }}>{activityLogs.length}</span>}
+          </div>
+          {activityLogs.length === 0 ? (
+            <div className="card" style={{ padding: "56px 24px", textAlign: "center" }}>
+              <div style={{ width: "52px", height: "52px", background: "#F3F4F6", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+                <Briefcase size={22} color="#9CA3AF" />
+              </div>
+              <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", marginBottom: "6px" }}>Nuk ka aktivitet ende</div>
+              <div style={{ fontSize: "13px", color: "#9CA3AF", maxWidth: "300px", margin: "0 auto", lineHeight: 1.6 }}>Çdo ndryshim i bërë në projekt do të regjistrohet këtu automatikisht.</div>
+            </div>
+          ) : (
+            <div className="card" style={{ overflow: "hidden" }}>
+              {activityLogs.map((log, i) => {
+                const isLast = i === activityLogs.length - 1;
+                const dot = log.action.includes("deleted") ? "#EF4444"
+                  : log.action.includes("payment") ? "#16A34A"
+                  : log.action === "project_updated" ? "#2563EB"
+                  : "#6B7280";
+                return (
+                  <div key={log.id} style={{ display: "flex", gap: "14px", padding: "14px 18px", borderBottom: isLast ? "none" : "1px solid #F3F4F6" }}>
+                    {/* Timeline dot + line */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "3px" }}>
+                      <div style={{ width: "9px", height: "9px", borderRadius: "50%", background: dot, flexShrink: 0 }} />
+                      {!isLast && <div style={{ width: "1px", flex: 1, background: "#F3F4F6", marginTop: "5px" }} />}
+                    </div>
+                    {/* Content */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "13px", color: "#111827", fontWeight: "500", lineHeight: 1.5 }}>{log.description}</div>
+                      <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "3px", display: "flex", alignItems: "center", gap: "4px" }}>
+                        <Calendar size={10} />
+                        {new Date(log.createdAt).toLocaleDateString("sq-AL", { day: "2-digit", month: "long", year: "numeric" })}
+                        {" · "}
+                        {new Date(log.createdAt).toLocaleTimeString("sq-AL", { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Edit drawer */}
