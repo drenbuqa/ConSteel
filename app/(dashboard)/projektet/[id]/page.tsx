@@ -1112,8 +1112,8 @@ export default function ProjectDetailPage() {
             <div className="card" style={{ overflow: "hidden" }}>
               {expenses.map((exp, i) => (
                 <div key={exp.id} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 18px", borderBottom: i < expenses.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                  <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <Euro size={16} color="#6B7280" />
+                  <div style={{ minWidth: "72px", height: "44px", borderRadius: "10px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: "0 10px" }}>
+                    <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>{fmt(exp.amount)}</span>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.name}</div>
@@ -1121,7 +1121,6 @@ export default function ProjectDetailPage() {
                       <Calendar size={11} />{fmtDate(exp.date)}{exp.note ? ` · ${exp.note}` : ""}
                     </div>
                   </div>
-                  <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", flexShrink: 0 }}>{fmt(exp.amount)}</div>
                   <button onClick={() => setConfirmExpenseId(exp.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex", flexShrink: 0 }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
                     onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
@@ -1167,18 +1166,15 @@ export default function ProjectDetailPage() {
             <div className="card" style={{ overflow: "hidden" }}>
               {workerLogs.map((log, i) => (
                 <div key={log.id} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 18px", borderBottom: i < workerLogs.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                  <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <Users size={16} color="#6B7280" />
+                  <div style={{ width: "48px", height: "48px", borderRadius: "10px", background: "#111827", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ fontSize: "17px", fontWeight: "800", color: "white", lineHeight: 1 }}>{log.count}</span>
+                    <span style={{ fontSize: "9px", fontWeight: "600", color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.04em", marginTop: "2px" }}>punëtorë</span>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827", display: "flex", alignItems: "center", gap: "4px" }}>
                       <Calendar size={12} color="#9CA3AF" />{fmtDate(log.date)}
                     </div>
                     {log.note && <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{log.note}</div>}
-                  </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div style={{ fontSize: "18px", fontWeight: "800", color: "#111827", lineHeight: 1 }}>{log.count}</div>
-                    <div style={{ fontSize: "10px", color: "#9CA3AF", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.04em", marginTop: "2px" }}>punëtorë</div>
                   </div>
                   <button onClick={() => setConfirmWorkerId(log.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex", flexShrink: 0 }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
