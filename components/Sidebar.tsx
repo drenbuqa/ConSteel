@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, FolderKanban, Users, Receipt,
-  BarChart3, Building2, LogOut, TrendingUp, ShieldCheck, X, Search,
+  BarChart3, Building2, LogOut, TrendingUp, ShieldCheck, X, Search, Activity,
 } from "lucide-react";
 import GlobalSearch from "./GlobalSearch";
 import { useState } from "react";
@@ -25,6 +25,7 @@ const navItems = [
       { href: "/shpenzimet", label: "Shpenzimet", icon: Receipt },
       { href: "/barazimi",   label: "Pagesat",    icon: TrendingUp },
       { href: "/raportet",   label: "Raportet",   icon: BarChart3 },
+      { href: "/aktiviteti", label: "Aktiviteti", icon: Activity },
     ],
   },
 ];
