@@ -886,11 +886,6 @@ export default function ProjectDetailPage() {
                   <MapPin size={13} color="#9CA3AF" /><span>{project.location}</span>
                 </div>
               )}
-              {totalWorkerDays > 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#6B7280" }}>
-                  <Users size={13} color="#9CA3AF" /><span>{totalWorkerDays} ditë-punëtor</span>
-                </div>
-              )}
               {project.startDate && (
                 <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", color: "#6B7280" }}>
                   <Calendar size={13} color="#9CA3AF" />
@@ -936,11 +931,6 @@ export default function ProjectDetailPage() {
               {project.location && (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
                   <MapPin size={10} color="#9CA3AF" />{project.location}
-                </span>
-              )}
-              {totalWorkerDays > 0 && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#6B7280", background: "#F9FAFB", padding: "4px 9px", borderRadius: "20px", border: "1px solid #EAECF0" }}>
-                  <Users size={10} color="#9CA3AF" />{totalWorkerDays} ditë-punëtor
                 </span>
               )}
               {project.startDate && (
@@ -1036,7 +1026,6 @@ export default function ProjectDetailPage() {
                 { label: "Klienti", value: project.client.name },
                 { label: "Lokacioni", value: project.location || "—" },
                 { label: "Statusi", value: <StatusBadge status={project.status} /> },
-                { label: "Ditë-punëtor", value: `${totalWorkerDays} ditë` },
                 { label: "Data fillimit", value: project.startDate ? fmtDate(project.startDate) : "—" },
                 { label: "Data mbarimit", value: project.endDate ? fmtDate(project.endDate) : "—" },
               ].map((row, idx, arr) => (
@@ -1196,10 +1185,6 @@ export default function ProjectDetailPage() {
                   </div>
                 </div>
               ))}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
-                <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
-                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", fontVariantNumeric: "tabular-nums" }}>{totalWorkerDays} ditë-punëtor</span>
-              </div>
             </div>
           )}
         </div>
