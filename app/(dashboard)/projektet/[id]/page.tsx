@@ -1122,9 +1122,7 @@ export default function ProjectDetailPage() {
                   onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#F9FAFB"; (e.currentTarget as HTMLElement).style.boxShadow = "inset 3px 0 0 #111827"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
                 >
-                  <div>
-                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#111827", background: "#F3F4F6", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{fmt(exp.amount)}</span>
-                  </div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{fmt(exp.amount)}</div>
                   <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "12px" }}>{exp.name}</div>
                   <div style={{ fontSize: "12px", color: "#6B7280", display: "flex", alignItems: "center", gap: "4px" }}>
                     <Calendar size={11} color="#9CA3AF" />{fmtDate(exp.date)}
@@ -1138,10 +1136,9 @@ export default function ProjectDetailPage() {
                   </div>
                 </div>
               ))}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 2fr 36px", alignItems: "center", padding: "11px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
-                <span style={{ fontSize: "13px", fontWeight: "800", color: "#111827", background: "#E5E7EB", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", display: "inline-block" }}>{fmt(totalExp)}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
-                <span /><span /><span />
+                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", fontVariantNumeric: "tabular-nums" }}>{fmt(totalExp)}</span>
               </div>
             </div>
           )}
@@ -1186,9 +1183,7 @@ export default function ProjectDetailPage() {
                   onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#F9FAFB"; (e.currentTarget as HTMLElement).style.boxShadow = "inset 3px 0 0 #111827"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
                 >
-                  <div>
-                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#111827", background: "#F3F4F6", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{log.count} punëtorë</span>
-                  </div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{log.count} punëtorë</div>
                   <div style={{ fontSize: "12px", color: "#6B7280", display: "flex", alignItems: "center", gap: "4px" }}>
                     <Calendar size={11} color="#9CA3AF" />{fmtDate(log.date)}
                   </div>
@@ -1201,10 +1196,9 @@ export default function ProjectDetailPage() {
                   </div>
                 </div>
               ))}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr 36px", alignItems: "center", padding: "11px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
-                <span style={{ fontSize: "13px", fontWeight: "800", color: "#111827", background: "#E5E7EB", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", display: "inline-block" }}>{totalWorkerDays} ditë-punëtor</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
-                <span /><span />
+                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", fontVariantNumeric: "tabular-nums" }}>{totalWorkerDays} ditë-punëtor</span>
               </div>
             </div>
           )}
