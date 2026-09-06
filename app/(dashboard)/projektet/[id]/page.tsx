@@ -1111,21 +1111,28 @@ export default function ProjectDetailPage() {
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
               {/* Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 110px 40px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 36px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
                 {["Shpenzimi", "Data", "Shuma", ""].map((h, i) => (
                   <span key={i} style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: i === 2 ? "right" : "left" }}>{h}</span>
                 ))}
               </div>
               {expenses.map((exp, i) => (
-                <div key={exp.id} style={{ display: "grid", gridTemplateColumns: "1fr 140px 110px 40px", alignItems: "center", padding: "11px 18px", borderBottom: i < expenses.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                <div key={exp.id}
+                  className="tbl-row"
+                  style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 36px", alignItems: "center", padding: "12px 18px", borderBottom: i < expenses.length - 1 ? "1px solid #F3F4F6" : "none", transition: "background 0.12s, box-shadow 0.12s" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#F9FAFB"; (e.currentTarget as HTMLElement).style.boxShadow = "inset 3px 0 0 #111827"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
+                >
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.name}</div>
-                    {exp.note && <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "1px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.note}</div>}
+                    {exp.note && <div style={{ fontSize: "11px", color: "#9CA3AF", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{exp.note}</div>}
                   </div>
                   <div style={{ fontSize: "12px", color: "#6B7280", display: "flex", alignItems: "center", gap: "4px" }}>
                     <Calendar size={11} color="#9CA3AF" />{fmtDate(exp.date)}
                   </div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmt(exp.amount)}</div>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#111827", background: "#F3F4F6", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums" }}>{fmt(exp.amount)}</span>
+                  </div>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <button onClick={() => setConfirmExpenseId(exp.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
@@ -1134,10 +1141,12 @@ export default function ProjectDetailPage() {
                   </div>
                 </div>
               ))}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 110px 40px", alignItems: "center", padding: "10px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 36px", alignItems: "center", padding: "11px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
                 <span />
-                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmt(totalExp)}</span>
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <span style={{ fontSize: "13px", fontWeight: "800", color: "#111827", background: "#E5E7EB", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums" }}>{fmt(totalExp)}</span>
+                </div>
                 <span />
               </div>
             </div>
@@ -1172,18 +1181,24 @@ export default function ProjectDetailPage() {
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
               {/* Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "160px 1fr 80px 40px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr 36px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
                 {["Data", "Shënim", "Punëtorë", ""].map((h, i) => (
                   <span key={i} style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: i === 2 ? "right" : "left" }}>{h}</span>
                 ))}
               </div>
               {workerLogs.map((log, i) => (
-                <div key={log.id} style={{ display: "grid", gridTemplateColumns: "160px 1fr 80px 40px", alignItems: "center", padding: "11px 18px", borderBottom: i < workerLogs.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                <div key={log.id}
+                  style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr 36px", alignItems: "center", padding: "12px 18px", borderBottom: i < workerLogs.length - 1 ? "1px solid #F3F4F6" : "none", transition: "background 0.12s, box-shadow 0.12s" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#F9FAFB"; (e.currentTarget as HTMLElement).style.boxShadow = "inset 3px 0 0 #111827"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
+                >
                   <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", display: "flex", alignItems: "center", gap: "4px" }}>
                     <Calendar size={11} color="#9CA3AF" />{fmtDate(log.date)}
                   </div>
                   <div style={{ fontSize: "12px", color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{log.note || <span style={{ color: "#D1D5DB" }}>—</span>}</div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#111827", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{log.count}</div>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#111827", background: "#F3F4F6", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums" }}>{log.count} punëtorë</span>
+                  </div>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <button onClick={() => setConfirmWorkerId(log.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D1D5DB", padding: "4px", display: "flex" }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
@@ -1192,10 +1207,12 @@ export default function ProjectDetailPage() {
                   </div>
                 </div>
               ))}
-              <div style={{ display: "grid", gridTemplateColumns: "160px 1fr 80px 40px", alignItems: "center", padding: "10px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr 36px", alignItems: "center", padding: "11px 18px", borderTop: "2px solid #EAECF0", background: "#F9FAFB" }}>
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>Total</span>
                 <span />
-                <span style={{ fontSize: "14px", fontWeight: "800", color: "#111827", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{totalWorkerDays}</span>
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <span style={{ fontSize: "13px", fontWeight: "800", color: "#111827", background: "#E5E7EB", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums" }}>{totalWorkerDays} ditë-punëtor</span>
+                </div>
                 <span />
               </div>
             </div>
@@ -1260,14 +1277,20 @@ export default function ProjectDetailPage() {
                 <span style={{ fontSize: "12px", fontWeight: "600", background: "#F3F4F6", color: "#6B7280", padding: "2px 8px", borderRadius: "20px", marginLeft: "8px" }}>{project.payments.length}</span>
               </div>
               {/* Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "120px 140px 1fr 40px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr 36px", padding: "9px 18px", borderBottom: "1px solid #EAECF0", background: "#F9FAFB" }}>
                 {["Shuma", "Data", "Shënim", ""].map((h, i) => (
                   <span key={i} style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</span>
                 ))}
               </div>
               {project.payments.map((pay, i) => (
-                <div key={pay.id} style={{ display: "grid", gridTemplateColumns: "120px 140px 1fr 40px", alignItems: "center", padding: "11px 18px", borderBottom: i < project.payments.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#16A34A", fontVariantNumeric: "tabular-nums" }}>{fmt(pay.amount)}</div>
+                <div key={pay.id}
+                  style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr 36px", alignItems: "center", padding: "12px 18px", borderBottom: i < project.payments.length - 1 ? "1px solid #F3F4F6" : "none", transition: "background 0.12s, box-shadow 0.12s" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#F9FAFB"; (e.currentTarget as HTMLElement).style.boxShadow = "inset 3px 0 0 #16A34A"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
+                >
+                  <div>
+                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#16A34A", background: "#F0FDF4", padding: "4px 10px", borderRadius: "6px", fontVariantNumeric: "tabular-nums" }}>{fmt(pay.amount)}</span>
+                  </div>
                   <div style={{ fontSize: "12px", color: "#6B7280", display: "flex", alignItems: "center", gap: "4px" }}>
                     <Calendar size={11} color="#9CA3AF" />{fmtDate(pay.date)}
                   </div>
