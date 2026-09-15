@@ -283,7 +283,7 @@ export default function LoginPage() {
         <div style={{ textAlign:"center", marginBottom:"28px" }}>
           <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="ConSteel" style={{ height:"56px", width:"auto", objectFit:"contain" }} />
+            <img src="/logo.png" alt="ConSteel" style={{ width:"260px", height:"auto", objectFit:"contain" }} />
           </div>
           <p style={{ fontSize:"14px", color:"#6B7280", margin:0, lineHeight:1.5 }}>
             Përdorni fjalëkalimin e përbashkët të kompanisë<br/>për të hyrë në sistem.
