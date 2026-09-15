@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, FolderKanban, Users, Receipt,
-  BarChart3, Building2, LogOut, TrendingUp, ShieldCheck, X, Search, Activity,
+  BarChart3, LogOut, TrendingUp, ShieldCheck, X, Search, Activity,
 } from "lucide-react";
 import GlobalSearch from "./GlobalSearch";
 import { useState } from "react";
@@ -52,19 +52,15 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
       overflow: "hidden",
     }}>
       {/* Logo + optional mobile close */}
-      <div style={{ marginBottom: "28px", padding: "0 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ width: "36px", height: "36px", background: "#111827", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Building2 size={20} color="white" />
-          </div>
-          <div>
-            <div style={{ fontSize: "15px", fontWeight: "700", color: "#111827", lineHeight: 1.2 }}>ConSteel</div>
-          </div>
-        </div>
+      <div style={{ marginBottom: "28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="ConSteel" style={{ height: "40px", width: "auto", maxWidth: "160px", objectFit: "contain", objectPosition: "left center" }} />
+        </Link>
         {onClose && (
           <button
             onClick={onClose}
-            style={{ background: "#F3F4F6", border: "none", borderRadius: "7px", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            style={{ position: "absolute", right: 0, background: "#F3F4F6", border: "none", borderRadius: "7px", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
           >
             <X size={15} color="#6B7280" />
           </button>

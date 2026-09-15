@@ -533,33 +533,37 @@ function NewProjectPage() {
     );
   }
 
-  // ── Desktop rendering (unchanged 2-column layout) ───────────────────────────
+  // ── Desktop rendering — horizontal step wizard ──────────────────────────────
+  const currentStepDef = STEPS[step - 1];
+  const DesktopStepIcon = currentStepDef.icon;
+
   return (
     <>
       <style>{`
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
         input[type="number"] { -moz-appearance: textfield; }
-        input:focus, textarea:focus { outline: none; border-color: #111827 !important; background: white !important; }
-        textarea { font-family: Inter, sans-serif; }
-        .iri-main { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; align-items: start; }
-        .iri-form2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media (max-width: 1024px) { .iri-main { grid-template-columns: 1fr; } }
-        @media (max-width: 640px)  { .iri-form2 { grid-template-columns: 1fr; } }
+        textarea { font-family: Inter, sans-serif; resize: vertical; }
+        .dsk-field:focus { outline: none; border-color: #2563EB !important; background: white !important; box-shadow: 0 0 0 3px rgba(37,99,235,0.08) !important; }
+        .dsk-textarea:focus { outline: none; border-color: #2563EB !important; background: white !important; box-shadow: 0 0 0 3px rgba(37,99,235,0.08) !important; }
+        .dsk-step-enter-left  { animation: dskInLeft  0.22s ease both; }
+        .dsk-step-enter-right { animation: dskInRight 0.22s ease both; }
+        @keyframes dskInLeft  { from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes dskInRight { from { opacity:0; transform:translateX(-28px); } to { opacity:1; transform:translateX(0); } }
       `}</style>
 
-      <div style={{ maxWidth: "1400px", margin: "0 auto", paddingBottom: "88px" }}>
+      <div style={{ maxWidth: "680px", margin: "0 auto", paddingBottom: "48px" }}>
 
         {/* Breadcrumb */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px", fontSize: "13px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "28px", fontSize: "13px" }}>
           {prefilledClientId ? (
-            <Link href={`/klientet/${prefilledClientId}`} className="breadcrumb-link"
-              style={{ display: "flex", alignItems: "center", gap: "5px", color: "#9CA3AF" }}>
+            <Link href={`/klientet/${prefilledClientId}`}
+              style={{ display: "flex", alignItems: "center", gap: "5px", color: "#9CA3AF", textDecoration: "none" }}>
               <ArrowLeft size={14} /> Klienti
             </Link>
           ) : (
-            <Link href="/projektet" className="breadcrumb-link"
-              style={{ display: "flex", alignItems: "center", gap: "5px", color: "#9CA3AF" }}>
+            <Link href="/projektet"
+              style={{ display: "flex", alignItems: "center", gap: "5px", color: "#9CA3AF", textDecoration: "none" }}>
               <ArrowLeft size={14} /> Projektet
             </Link>
           )}
@@ -567,86 +571,143 @@ function NewProjectPage() {
           <span style={{ color: "#374151", fontWeight: "500" }}>Projekt i ri</span>
         </div>
 
-        <div style={{ marginBottom: "28px" }}>
-          <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: "0 0 4px" }}>Krijo projekt të ri</h1>
-          <p style={{ margin: 0, fontSize: "13px", color: "#9CA3AF" }}>
-            Fushat me <span style={{ color: "#EF4444" }}>*</span> janë të detyrueshme.
-          </p>
+        {/* ── Step indicator ── */}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "28px" }}>
+          {STEPS.map((s, i) => {
+            const done = s.id < step;
+            const active = s.id === step;
+            const Icon = s.icon;
+            return (
+              <div key={s.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
+                {/* Step node */}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+                  <div style={{
+                    width: "36px", height: "36px", borderRadius: "50%",
+                    background: done ? "#111827" : active ? "#111827" : "#F3F4F6",
+                    border: `2px solid ${done || active ? "#111827" : "#E5E7EB"}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "all 0.2s",
+                  }}>
+                    {done
+                      ? <Check size={15} color="white" strokeWidth={2.5} />
+                      : <Icon size={15} color={active ? "white" : "#9CA3AF"} />
+                    }
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "13px", fontWeight: active ? "700" : "500", color: active ? "#111827" : done ? "#374151" : "#9CA3AF", transition: "color 0.2s" }}>
+                      {s.label}
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#9CA3AF" }}>{s.subtitle}</div>
+                  </div>
+                </div>
+                {/* Connector line */}
+                {i < STEPS.length - 1 && (
+                  <div style={{ flex: 1, height: "2px", background: done ? "#111827" : "#E5E7EB", margin: "0 16px", transition: "background 0.2s" }} />
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        <form id="new-project-form" onSubmit={handleSubmit} noValidate>
-          <div className="iri-main">
+        {/* ── Step card ── */}
+        <div className="card" style={{ padding: "32px" }}>
+          {/* Card header */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "28px", paddingBottom: "20px", borderBottom: "1px solid #F3F4F6" }}>
+            <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "#F3F4F6", border: "1px solid #EAECF0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <DesktopStepIcon size={18} color="#374151" />
+            </div>
+            <div>
+              <div style={{ fontSize: "16px", fontWeight: "700", color: "#111827" }}>{currentStepDef.label}</div>
+              <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "1px" }}>{currentStepDef.subtitle}</div>
+            </div>
+            <div style={{ marginLeft: "auto", fontSize: "12px", fontWeight: "600", color: "#D1D5DB" }}>
+              {step} / {STEPS.length}
+            </div>
+          </div>
 
-            {/* ── LEFT ── */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {/* Step content */}
+          <div
+            key={step}
+            className={slideDir === "left" ? "dsk-step-enter-left" : "dsk-step-enter-right"}
+            style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+          >
 
-              <div className="card" style={{ padding: "26px" }}>
-                <SectionHeader icon={<Building2 size={16} color="#374151" />} title="Informacione bazë" subtitle="Identiteti dhe statusi i projektit" />
-
-                <div style={{ marginBottom: "18px" }}>
+            {/* ── Step 1: Base ── */}
+            {step === 1 && (
+              <>
+                <div>
                   <FieldLabel text="Emri i projektit" required hint="Duhet të jetë unik dhe përshkrues" />
                   <input
                     name="name" value={form.name} onChange={set}
                     onBlur={() => setTouched((t) => ({ ...t, name: true }))}
                     placeholder="p.sh. Ndërtimi i Rezidencës Panorama"
+                    className="dsk-field"
                     style={{
-                      width: "100%", padding: "9px 12px",
+                      width: "100%", padding: "10px 13px",
                       background: errors.name && touched.name ? "#FFF5F5" : "#F9FAFB",
                       border: `1px solid ${errors.name && touched.name ? "#FCA5A5" : "#EAECF0"}`,
                       borderRadius: "8px", fontSize: "14px", fontFamily: "Inter, sans-serif",
-                      color: "#111827", outline: "none",
-                    }}
+                      color: "#111827", outline: "none", boxSizing: "border-box",
+                      transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",
+                    } as React.CSSProperties}
                   />
                   {errors.name && touched.name && <FieldError msg={errors.name} />}
                 </div>
 
-                <div className="iri-form2">
-                  <div>
-                    <FieldLabel text="Klienti" required hint="Klienti i lidhur me projektin" />
-                    <ClientSelect
-                      clients={clients}
-                      value={form.clientId}
-                      onChange={(id) => { setField("clientId", id); setTouched((t) => ({ ...t, clientId: true })); }}
-                      onClientAdded={(c) => setClients((prev) => [c, ...prev])}
-                      error={!!errors.clientId && touched.clientId}
+                <div>
+                  <FieldLabel text="Klienti" required hint="Klienti i lidhur me projektin" />
+                  <ClientSelect
+                    clients={clients}
+                    value={form.clientId}
+                    onChange={(id) => { setField("clientId", id); setTouched((t) => ({ ...t, clientId: true })); }}
+                    onClientAdded={(c) => setClients((prev) => [c, ...prev])}
+                    error={!!errors.clientId && touched.clientId}
+                  />
+                  {errors.clientId && touched.clientId && <FieldError msg={errors.clientId} />}
+                </div>
+
+                <div>
+                  <FieldLabel text="Statusi" hint="Gjendja aktuale e projektit" />
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    {STATUS_OPTIONS.map((s) => {
+                      const active = form.status === s.value;
+                      return (
+                        <button key={s.value} type="button" onClick={() => setField("status", s.value)}
+                          style={{
+                            flex: 1, padding: "10px 8px", borderRadius: "8px", cursor: "pointer",
+                            border: `1.5px solid ${active ? s.border : "#EAECF0"}`,
+                            background: active ? s.bg : "#F9FAFB",
+                            color: active ? s.color : "#9CA3AF",
+                            fontSize: "12.5px", fontWeight: "600", fontFamily: "Inter, sans-serif",
+                            transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                          }}>
+                          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: active ? s.dot : "#D1D5DB", flexShrink: 0 }} />
+                          {s.label}
+                          {active && <Check size={13} color={s.color} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* ── Step 2: Details ── */}
+            {step === 2 && (
+              <>
+                <div>
+                  <FieldLabel text="Lokacioni" hint="Qyteti ose adresa e projektit" />
+                  <div style={{ position: "relative" }}>
+                    <MapPin size={13} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#9CA3AF", pointerEvents: "none" }} />
+                    <input name="location" value={form.location} onChange={set}
+                      placeholder="p.sh. Tiranë, Blloku"
+                      className="dsk-field"
+                      style={{ width: "100%", padding: "10px 13px 10px 34px", background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "8px", fontSize: "14px", fontFamily: "Inter, sans-serif", color: "#111827", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s" } as React.CSSProperties}
                     />
-                    {errors.clientId && touched.clientId && <FieldError msg={errors.clientId} />}
                   </div>
+                </div>
 
-                  <div>
-                    <FieldLabel text="Statusi" hint="Gjendja aktuale e projektit" />
-                    <div style={{ display: "flex", gap: "6px" }}>
-                      {STATUS_OPTIONS.map((s) => {
-                        const active = form.status === s.value;
-                        return (
-                          <button key={s.value} type="button" onClick={() => setField("status", s.value)}
-                            style={{
-                              flex: 1, padding: "9px 4px", borderRadius: "8px", cursor: "pointer",
-                              border: `1.5px solid ${active ? s.border : "#EAECF0"}`,
-                              background: active ? s.bg : "#F9FAFB",
-                              color: active ? s.color : "#9CA3AF",
-                              fontSize: "11.5px", fontWeight: "600", fontFamily: "Inter, sans-serif",
-                              transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px",
-                            }}>
-                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: active ? s.dot : "#D1D5DB", flexShrink: 0 }} />
-                            {s.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div>
-                    <FieldLabel text="Lokacioni" hint="Qyteti ose adresa" />
-                    <div style={{ position: "relative" }}>
-                      <MapPin size={13} style={{ position: "absolute", left: "11px", top: "50%", transform: "translateY(-50%)", color: "#9CA3AF", pointerEvents: "none" }} />
-                      <input name="location" value={form.location} onChange={set}
-                        placeholder="p.sh. Tiranë, Blloku"
-                        style={{ width: "100%", padding: "9px 12px 9px 34px", background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "8px", fontSize: "14px", fontFamily: "Inter, sans-serif", color: "#111827", outline: "none" }}
-                      />
-                    </div>
-                  </div>
-
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                   <div>
                     <FieldLabel text="Data e fillimit" hint="Kur fillon ekzekutimi" />
                     <DatePicker value={form.startDate} onChange={(v) => {
@@ -654,75 +715,86 @@ function NewProjectPage() {
                       if (form.endDate && v && form.endDate < v) setField("endDate", "");
                     }} placeholder="Zgjidh datën..." />
                   </div>
-
                   <div>
                     <FieldLabel text="Data e mbarimit" hint="Afati i planifikuar" />
                     <DatePicker value={form.endDate} onChange={(v) => setField("endDate", v)} placeholder="Zgjidh datën..." minDate={form.startDate || undefined} />
                   </div>
                 </div>
-              </div>
 
-              <div className="card" style={{ padding: "26px" }}>
-                <SectionHeader icon={<FileText size={16} color="#374151" />} title="Shënime" subtitle="Informacione shtesë ose vërejtje" />
-                <textarea
-                  name="notes" value={form.notes} onChange={set} rows={4}
-                  placeholder="Vërejtje specifike, kushte kontrate, materiale të veçanta, etj..."
-                  style={{ width: "100%", padding: "10px 12px", background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "8px", fontSize: "14px", color: "#111827", resize: "vertical", lineHeight: "1.55", outline: "none" }}
-                />
-              </div>
-            </div>
+                <div>
+                  <FieldLabel text="Shënime" hint="Vërejtje, kushte kontrate, materiale të veçanta" />
+                  <textarea
+                    name="notes" value={form.notes} onChange={set} rows={4}
+                    placeholder="Shkruani çdo informacion shtesë rreth projektit..."
+                    className="dsk-textarea"
+                    style={{ width: "100%", padding: "10px 13px", background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "8px", fontSize: "14px", color: "#111827", lineHeight: "1.6", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s" } as React.CSSProperties}
+                  />
+                </div>
+              </>
+            )}
 
-            {/* ── RIGHT — finance ── */}
-            <div style={{ position: "sticky", top: "24px" }}>
-              <div className="card" style={{ padding: "26px" }}>
-                <SectionHeader icon={<Euro size={16} color="#374151" />} title="Financat" subtitle="Vlera e kontratës" />
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                  <div>
-                    <FieldLabel text="Vlera e kontratës" required hint="Shuma totale e marrëveshjes" />
-                    <NumInput name="totalPrice" value={form.totalPrice} onChange={set} />
-                  </div>
-                  <div style={{ background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "10px", padding: "13px 16px" }}>
-                    <div style={{ fontSize: "12px", color: "#9CA3AF", lineHeight: 1.6 }}>
-                      Shpenzimet dhe prezencën e punëtorëve mund t&apos;i shtoni pas krijimit të projektit, brenda skedës &quot;Shpenzimet&quot; dhe &quot;Punëtorët&quot;.
-                    </div>
+            {/* ── Step 3: Finance ── */}
+            {step === 3 && (
+              <>
+                <div>
+                  <FieldLabel text="Vlera e kontratës" hint="Shuma totale e marrëveshjes" />
+                  <NumInput name="totalPrice" value={form.totalPrice} onChange={set} />
+                </div>
+                <div style={{ background: "#F9FAFB", border: "1px solid #EAECF0", borderRadius: "10px", padding: "14px 16px" }}>
+                  <div style={{ fontSize: "12px", color: "#9CA3AF", lineHeight: 1.7 }}>
+                    Shpenzimet dhe prezencën e punëtorëve mund t&apos;i shtoni pas krijimit të projektit, brenda skedës &quot;Shpenzimet&quot; dhe &quot;Punëtorët&quot;.
                   </div>
                 </div>
-              </div>
-            </div>
-
+              </>
+            )}
           </div>
-        </form>
-      </div>
 
-      {/* ── Sticky bottom action bar ── */}
-      <div style={{
-        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40,
-        background: "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)",
-        borderTop: "1px solid #EAECF0",
-        padding: "12px 20px",
-        display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "10px",
-      }}>
-        <p style={{ margin: 0, fontSize: "12px", color: "#9CA3AF", flex: 1 }}>
-          Fushat me <span style={{ color: "#EF4444" }}>*</span> janë të detyrueshme
-        </p>
-        <Link
-          href={prefilledClientId ? `/klientet/${prefilledClientId}` : "/projektet"}
-          style={{ padding: "9px 20px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: "8px", fontSize: "14px", fontWeight: "500", textDecoration: "none", display: "inline-flex", alignItems: "center", transition: "background 0.15s" }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "#F9FAFB")}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "white")}
-        >
-          Anulo
-        </Link>
-        <button
-          type="submit" form="new-project-form" disabled={loading}
-          style={{ padding: "9px 22px", background: loading ? "#6B7280" : "#111827", color: "white", border: "none", borderRadius: "8px", fontSize: "14px", fontWeight: "600", cursor: loading ? "not-allowed" : "pointer", display: "inline-flex", alignItems: "center", gap: "7px", fontFamily: "Inter, sans-serif", transition: "background 0.15s" }}
-          onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#1f2937"; }}
-          onMouseLeave={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#111827"; }}
-        >
-          <Save size={14} />
-          {loading ? "Duke ruajtur..." : "Krijo projektin"}
-        </button>
+          {/* ── Card footer: navigation ── */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "32px", paddingTop: "20px", borderTop: "1px solid #F3F4F6" }}>
+            {/* Left: Cancel or Back */}
+            {step === 1 ? (
+              <Link
+                href={prefilledClientId ? `/klientet/${prefilledClientId}` : "/projektet"}
+                style={{ padding: "9px 18px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: "8px", fontSize: "14px", fontWeight: "500", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px", transition: "background 0.15s" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "#F9FAFB")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "white")}
+              >
+                Anulo
+              </Link>
+            ) : (
+              <button
+                type="button" onClick={() => goToStep(step - 1)} disabled={animating}
+                style={{ padding: "9px 18px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: "8px", fontSize: "14px", fontWeight: "500", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "6px", fontFamily: "Inter, sans-serif", transition: "background 0.15s" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#F9FAFB")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "white")}
+              >
+                <ArrowLeft size={14} /> Kthehu
+              </button>
+            )}
+
+            {/* Right: Next or Submit */}
+            {step < 3 ? (
+              <button
+                type="button" onClick={handleNext} disabled={animating}
+                style={{ padding: "9px 22px", background: "#111827", color: "white", border: "none", borderRadius: "8px", fontSize: "14px", fontWeight: "600", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "7px", fontFamily: "Inter, sans-serif", transition: "background 0.15s" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#1f2937")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#111827")}
+              >
+                Vazhdo <ArrowRight size={14} />
+              </button>
+            ) : (
+              <button
+                type="button" onClick={() => handleSubmit()} disabled={loading}
+                style={{ padding: "9px 22px", background: loading ? "#6B7280" : "#111827", color: "white", border: "none", borderRadius: "8px", fontSize: "14px", fontWeight: "600", cursor: loading ? "not-allowed" : "pointer", display: "inline-flex", alignItems: "center", gap: "7px", fontFamily: "Inter, sans-serif", transition: "background 0.15s" }}
+                onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#1f2937"; }}
+                onMouseLeave={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = loading ? "#6B7280" : "#111827"; }}
+              >
+                <Save size={14} />
+                {loading ? "Duke krijuar..." : "Krijo projektin"}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );

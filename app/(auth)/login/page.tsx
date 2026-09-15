@@ -281,17 +281,10 @@ export default function LoginPage() {
         border:"1px solid rgba(255,255,255,0.96)",
       }}>
         <div style={{ textAlign:"center", marginBottom:"28px" }}>
-          <div style={{
-            width:"56px", height:"56px", background:"#F3F4F6", borderRadius:"14px",
-            display:"flex", alignItems:"center", justifyContent:"center",
-            margin:"0 auto 20px", border:"1px solid #E5E7EB",
-          }}>
-            <Lock size={24} color="#374151"/>
+          <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="ConSteel" style={{ height:"56px", width:"auto", objectFit:"contain" }} />
           </div>
-          <h1 style={{ fontSize:"22px", fontWeight:"700", color:"#111827",
-            margin:"0 0 8px", letterSpacing:"-0.02em" }}>
-            Mirësevini në ConSteel Pro
-          </h1>
           <p style={{ fontSize:"14px", color:"#6B7280", margin:0, lineHeight:1.5 }}>
             Përdorni fjalëkalimin e përbashkët të kompanisë<br/>për të hyrë në sistem.
           </p>
